@@ -1,0 +1,35 @@
+{
+  "name": "blog-be",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/blog-be/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "blog-be:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "blog-be:build:development"
+        },
+        "production": {
+          "buildTarget": "blog-be:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/blog-be/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}
