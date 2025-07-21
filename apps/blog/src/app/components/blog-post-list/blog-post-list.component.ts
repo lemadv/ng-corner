@@ -1,23 +1,32 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BlogPostCardComponent } from '../blog-post-card/blog-post-card.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { createBlogPostsViewModel } from '../../view-models/blog-posts.view-model';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-blog-post-list',
-  imports: [BlogPostCardComponent, SkeletonComponent, InfiniteScrollModule, JsonPipe],
+  imports: [BlogPostCardComponent, SkeletonComponent, InfiniteScrollModule],
   templateUrl: './blog-post-list.component.html',
   styleUrl: './blog-post-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlogPostListComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   vm = createBlogPostsViewModel();
 
   ngOnInit() {
-    // Load initial posts
-    this.vm.loadPosts({ page: 1, limit: 10 });
+    // Check if posts were resolved (from SSR/resolver)
+    const resolvedPosts = this.route.snapshot.data['blogPosts'];
+    
+    if (resolvedPosts) {
+      // Posts were pre-loaded by resolver, populate the store directly
+      this.vm.populateFromResolved(resolvedPosts);
+    } else {
+      // Fallback: Load initial posts if not resolved
+      this.vm.loadPosts({ page: 1, limit: 10 });
+    }
   }
 
   onScrollDown() {

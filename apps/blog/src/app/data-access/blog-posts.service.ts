@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, TransferState, makeStateKey } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { BlogPost } from '../models/blog-post.interface';
 import { BlogPostsResponse, BlogPostSearchParams } from '../models/api-response.interface';
 
@@ -9,9 +10,22 @@ import { BlogPostsResponse, BlogPostSearchParams } from '../models/api-response.
 })
 export class BlogPostsService {
   private http = inject(HttpClient);
+  private transferState = inject(TransferState);
   private readonly apiUrl = '/api/posts';
 
   getPosts(params: BlogPostSearchParams = {}): Observable<BlogPostsResponse> {
+    // Create a unique key for this specific request
+    const stateKey = makeStateKey<BlogPostsResponse>(`posts-${JSON.stringify(params)}`);
+    
+    // Check if data exists in transfer state (from SSR)
+    const transferredData = this.transferState.get(stateKey, null);
+    if (transferredData) {
+      // Remove from transfer state to prevent memory leaks
+      this.transferState.remove(stateKey);
+      return of(transferredData);
+    }
+
+    // Make HTTP request if no transferred data
     let httpParams = new HttpParams();
     
     if (params.page) {
@@ -24,7 +38,12 @@ export class BlogPostsService {
       httpParams = httpParams.set('search', params.search);
     }
 
-    return this.http.get<BlogPostsResponse>(this.apiUrl, { params: httpParams });
+    return this.http.get<BlogPostsResponse>(this.apiUrl, { params: httpParams }).pipe(
+      tap(response => {
+        // Store response in transfer state for potential future use
+        this.transferState.set(stateKey, response);
+      })
+    );
   }
 
   getPost(id: string): Observable<BlogPost> {

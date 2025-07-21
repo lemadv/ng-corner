@@ -18,7 +18,6 @@
       autocomplete="off"
       role="searchbox"
       aria-label="Search blog posts by title or content"
-      [attr.aria-expanded]="localSearchTerm() ? 'true' : 'false'"
     />
     @if (localSearchTerm()) {
       <button 

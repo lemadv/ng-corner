@@ -183,7 +183,16 @@ export const BlogPostsStore = signalStore(
 
     resetStore: () => {
       patchState(store, initialState);
-      // test
+    },
+
+    populateFromResolved: (response: { posts: BlogPost[], pagination: PaginationInfo }) => {
+      patchState(store, {
+        posts: response.posts,
+        pagination: response.pagination,
+        hasMore: response.pagination.hasMore,
+        loading: false,
+        error: null
+      });
     }
   }))
 );

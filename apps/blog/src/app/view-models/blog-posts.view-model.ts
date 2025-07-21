@@ -28,6 +28,7 @@ export function createBlogPostsViewModel() {
     loadMorePosts: store.loadMorePosts,
     searchPosts: store.searchPosts,
     clearSearch: store.clearSearch,
-    resetStore: store.resetStore
+    resetStore: store.resetStore,
+    populateFromResolved: store.populateFromResolved
   };
 }

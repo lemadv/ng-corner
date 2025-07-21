@@ -27,9 +27,7 @@
       </button>
     </div>
   }
-  {{vm.isEmpty() | json}}
-  {{!vm.loading() | json}}
-  {{!vm.error() | json}}
+
   @if (vm.isEmpty() && !vm.loading() && !vm.error()) {
     <div class="empty-state">
       @if (vm.isSearching()) {
