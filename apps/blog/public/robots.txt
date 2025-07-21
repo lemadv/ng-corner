@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /contact
+
+# Disallow common admin/development paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_dev/
+Disallow: /test/
+Disallow: /*.json$
+Disallow: /*.xml$
+
+# Allow search engine crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://ng-corner.dev/sitemap.xml
