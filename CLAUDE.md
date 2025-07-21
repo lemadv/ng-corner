@@ -126,6 +126,7 @@ docker-compose down
 - **Volume Mounting**: Source code is mounted for real-time development
 - **Nx Cache Isolation**: `.nx` directory is excluded to prevent Windows cache conflicts
 - **Node 22 Alpine**: Clean environment with latest Node.js
+- **Proxy Configuration**: Frontend automatically proxies `/api/*` requests to backend (no CORS issues)
 
 ### Rebuild Services
 ```bash
