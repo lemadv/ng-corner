@@ -4,7 +4,12 @@
       "Bash(curl:*)",
       "Bash(docker-compose logs:*)",
       "Bash(find:*)",
-      "Bash(docker-compose restart:*)"
+      "Bash(docker-compose restart:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(docker-compose:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

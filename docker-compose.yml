@@ -42,9 +42,39 @@ services:
       - NODE_ENV=development
       - PORT=3333
       - CHOKIDAR_USEPOLLING=true
+      - DATABASE_URL=postgresql://blog_user:blog_password@postgres:5432/blog_db
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-this-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blog-network
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: blog_db
+      POSTGRES_USER: blog_user
+      POSTGRES_PASSWORD: blog_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/backend/src/database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blog_user -d blog_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - blog-network
 
 networks:
   blog-network:
     driver: bridge
+
+volumes:
+  postgres_data:
