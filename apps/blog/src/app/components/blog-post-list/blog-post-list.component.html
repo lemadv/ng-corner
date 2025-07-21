@@ -1,4 +1,14 @@
-<section class="blog-post-list" aria-label="Blog posts">
+<section
+  class="blog-post-list"
+  aria-label="Blog posts"
+  infiniteScroll
+  [infiniteScrollDistance]="1"
+  [infiniteScrollUpDistance]="1"
+  [infiniteScrollThrottle]="50"
+  [infiniteScrollDisabled]="!vm.hasMore() || vm.loading()"
+  [scrollWindow]="true"
+  (scrolled)="onScrollDown()">
+
   @if (vm.loading() && vm.posts().length === 0) {
     <div class="posts-grid" role="list" aria-label="Loading blog posts">
       @for (i of [1,2,3,4,5,6]; track i) {
@@ -17,7 +27,9 @@
       </button>
     </div>
   }
-
+  {{vm.isEmpty() | json}}
+  {{!vm.loading() | json}}
+  {{!vm.error() | json}}
   @if (vm.isEmpty() && !vm.loading() && !vm.error()) {
     <div class="empty-state">
       @if (vm.isSearching()) {
@@ -48,19 +60,17 @@
       @for (post of vm.posts(); track trackByPostId($index, post)) {
         <app-blog-post-card [post]="post" role="listitem" />
       }
+
+      <!-- Loading more posts indicator -->
+      @if (vm.loading() && vm.posts().length > 0) {
+        @for (i of [1,2,3]; track i) {
+          <app-skeleton role="status" [attr.aria-label]="'Loading post ' + i" />
+        }
+      }
     </div>
 
-    @if (vm.hasMore()) {
-      <div class="load-more-container">
-        <div #loadMoreTrigger class="load-more-trigger"></div>
-        @if (vm.loading()) {
-          <div class="loading-more" role="status" aria-label="Loading more posts">
-            <div class="loading-spinner small" aria-hidden="true"></div>
-            <span>Loading more posts...</span>
-          </div>
-        }
-      </div>
-    } @else if (vm.posts().length > 0) {
+    <!-- End of posts message -->
+    @if (!vm.hasMore() && vm.posts().length > 0 && !vm.loading()) {
       <div class="end-message">
         <div class="end-icon">🎉</div>
         <p>You've reached the end! That's all for now.</p>

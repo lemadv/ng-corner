@@ -6,12 +6,8 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - type: bind
-        source: .
-        target: /app
-        consistency: cached
-      - type: volume
-        target: /app/node_modules
+      - .:/app:cached
+      - /app/node_modules
       - type: volume
         target: /app/dist
       - type: volume

@@ -58,36 +58,56 @@ export const BlogPostsStore = signalStore(
 
     loadMorePosts: rxMethod<void>(
       pipe(
-        tap(() => {
+        debounceTime(100), // Prevent rapid successive calls
+        tap(() => console.log('📞 loadMorePosts called')),
+        switchMap(() => {
           const currentPagination = store.pagination();
-          if (currentPagination && store.hasMore() && !store.loading()) {
-            const nextPage = currentPagination.page + 1;
-            const searchTerm = store.searchTerm();
-
-            patchState(store, { loading: true });
-
-            blogPostsService.getPosts({
-              page: nextPage,
-              limit: currentPagination.limit,
-              search: searchTerm || undefined
-            }).pipe(
-              tap((response) => {
-                patchState(store, {
-                  posts: [...store.posts(), ...response.posts],
-                  pagination: response.pagination,
-                  hasMore: response.pagination.hasMore,
-                  loading: false
-                });
-              }),
-              catchError((error) => {
-                patchState(store, {
-                  loading: false,
-                  error: error.message || 'Failed to load more posts'
-                });
-                return of(null);
-              })
-            ).subscribe();
+          const hasMore = store.hasMore();
+          const loading = store.loading();
+          
+          console.log('🔍 Load more check:', { currentPagination, hasMore, loading });
+          
+          // Check if we can load more (before setting loading state)
+          if (!currentPagination || !hasMore || loading) {
+            console.log('❌ Cannot load more:', { 
+              noPagination: !currentPagination, 
+              noMore: !hasMore, 
+              alreadyLoading: loading 
+            });
+            return of(null);
           }
+          
+          const nextPage = currentPagination.page + 1;
+          const searchTerm = store.searchTerm();
+          
+          console.log('🚀 Making API call for page:', nextPage);
+          
+          // Set loading state
+          patchState(store, { loading: true, error: null });
+          
+          return blogPostsService.getPosts({
+            page: nextPage,
+            limit: currentPagination.limit,
+            search: searchTerm || undefined
+          }).pipe(
+            tap((response) => {
+              console.log('✅ API response received:', response);
+              patchState(store, {
+                posts: [...store.posts(), ...response.posts],
+                pagination: response.pagination,
+                hasMore: response.pagination.hasMore,
+                loading: false
+              });
+            }),
+            catchError((error) => {
+              console.log('❌ API error:', error);
+              patchState(store, {
+                loading: false,
+                error: error.message || 'Failed to load more posts'
+              });
+              return of(null);
+            })
+          );
         })
       )
     ),
@@ -102,7 +122,8 @@ export const BlogPostsStore = signalStore(
             loading: true,
             error: null
           });
-
+        }),
+        switchMap((searchTerm) =>
           blogPostsService.getPosts({
             page: 1,
             limit: 10,
@@ -123,32 +144,42 @@ export const BlogPostsStore = signalStore(
               });
               return of(null);
             })
-          ).subscribe();
-        })
+          )
+        )
       )
     ),
 
-    clearSearch: () => {
-      patchState(store, { searchTerm: '' });
-      blogPostsService.getPosts({ page: 1, limit: 10 }).pipe(
-        tap((response) => {
-          patchState(store, {
-            posts: response.posts,
-            pagination: response.pagination,
-            hasMore: response.pagination.hasMore,
-            loading: false,
-            error: null
+    clearSearch: rxMethod<void>(
+      pipe(
+        tap(() => {
+          patchState(store, { 
+            searchTerm: '', 
+            loading: true, 
+            error: null 
           });
         }),
-        catchError((error) => {
-          patchState(store, {
-            loading: false,
-            error: error.message || 'Failed to load posts'
-          });
-          return of(null);
-        })
-      ).subscribe();
-    },
+        switchMap(() =>
+          blogPostsService.getPosts({ page: 1, limit: 10 }).pipe(
+            tap((response) => {
+              patchState(store, {
+                posts: response.posts,
+                pagination: response.pagination,
+                hasMore: response.pagination.hasMore,
+                loading: false,
+                error: null
+              });
+            }),
+            catchError((error) => {
+              patchState(store, {
+                loading: false,
+                error: error.message || 'Failed to load posts'
+              });
+              return of(null);
+            })
+          )
+        )
+      )
+    ),
 
     resetStore: () => {
       patchState(store, initialState);
