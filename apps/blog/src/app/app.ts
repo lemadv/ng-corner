@@ -1,9 +1,16 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { BlogPostsStore } from './store/blog-posts.store';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [
+    RouterModule,
+    NavbarComponent,
+    FooterComponent
+  ],
+  providers: [BlogPostsStore],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',

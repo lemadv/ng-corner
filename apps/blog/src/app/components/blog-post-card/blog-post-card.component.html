@@ -1,0 +1,47 @@
+<article class="blog-post-card">
+  <div class="post-header">
+    <h2 class="post-title">{{ post().title }}</h2>
+    <div class="post-meta">
+      <span class="post-author">By {{ post().author }}</span>
+      <div class="post-dates">
+        <time class="post-date" [dateTime]="createdDate().toISOString()">
+          {{ createdDate() | date : 'MMM d, y' }}
+        </time>
+        @if (modifiedDate().getTime() !== createdDate().getTime()) {
+        <span class="post-modified">
+          Updated {{ modifiedDate() | date : 'MMM d, y' }}
+        </span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="post-content">
+    <p class="post-excerpt">{{ excerpt() }}</p>
+  </div>
+  <span></span>
+  @if (post().tags && post().tags?.length) {
+  <div class="post-tags">
+    @for (tag of post().tags; track tag) {
+    <span class="tag">{{ tag }}</span>
+    }
+  </div>
+  }
+
+  <div class="post-actions">
+    <button class="read-more-btn" type="button">
+      Read More
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M5 12h14"></path>
+        <path d="m12 5 7 7-7 7"></path>
+      </svg>
+    </button>
+  </div>
+</article>

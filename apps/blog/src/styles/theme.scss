@@ -1,0 +1,192 @@
+// OKLCH Theme System
+// Based on a single primary color, generates complete color palettes
+
+:root {
+  // Base primary color (can be changed to any OKLCH value)
+  --primary-lightness: 0.65;
+  --primary-chroma: 0.25;
+  --primary-hue: 220;
+
+  // Primary Color Palette
+  --primary-50: oklch(0.95 calc(var(--primary-chroma) * 0.1) var(--primary-hue));
+  --primary-100: oklch(0.9 calc(var(--primary-chroma) * 0.2) var(--primary-hue));
+  --primary-200: oklch(0.83 calc(var(--primary-chroma) * 0.4) var(--primary-hue));
+  --primary-300: oklch(0.76 calc(var(--primary-chroma) * 0.6) var(--primary-hue));
+  --primary-400: oklch(0.69 calc(var(--primary-chroma) * 0.8) var(--primary-hue));
+  --primary-500: oklch(var(--primary-lightness) var(--primary-chroma) var(--primary-hue));
+  --primary-600: oklch(0.58 calc(var(--primary-chroma) * 1.1) var(--primary-hue));
+  --primary-700: oklch(0.49 calc(var(--primary-chroma) * 1.2) var(--primary-hue));
+  --primary-800: oklch(0.39 calc(var(--primary-chroma) * 1.1) var(--primary-hue));
+  --primary-900: oklch(0.29 calc(var(--primary-chroma) * 0.8) var(--primary-hue));
+  --primary-950: oklch(0.19 calc(var(--primary-chroma) * 0.6) var(--primary-hue));
+
+  // Secondary Color Palette (Triadic harmony: +120° hue)
+  --secondary-hue: calc(var(--primary-hue) + 120);
+  --secondary-50: oklch(0.95 calc(var(--primary-chroma) * 0.1) var(--secondary-hue));
+  --secondary-100: oklch(0.9 calc(var(--primary-chroma) * 0.2) var(--secondary-hue));
+  --secondary-200: oklch(0.83 calc(var(--primary-chroma) * 0.4) var(--secondary-hue));
+  --secondary-300: oklch(0.76 calc(var(--primary-chroma) * 0.6) var(--secondary-hue));
+  --secondary-400: oklch(0.69 calc(var(--primary-chroma) * 0.8) var(--secondary-hue));
+  --secondary-500: oklch(var(--primary-lightness) var(--primary-chroma) var(--secondary-hue));
+  --secondary-600: oklch(0.58 calc(var(--primary-chroma) * 1.1) var(--secondary-hue));
+  --secondary-700: oklch(0.49 calc(var(--primary-chroma) * 1.2) var(--secondary-hue));
+  --secondary-800: oklch(0.39 calc(var(--primary-chroma) * 1.1) var(--secondary-hue));
+  --secondary-900: oklch(0.29 calc(var(--primary-chroma) * 0.8) var(--secondary-hue));
+  --secondary-950: oklch(0.19 calc(var(--primary-chroma) * 0.6) var(--secondary-hue));
+
+  // Accent Color Palette (Complementary: +180° hue)
+  --accent-hue: calc(var(--primary-hue) + 180);
+  --accent-50: oklch(0.95 calc(var(--primary-chroma) * 0.1) var(--accent-hue));
+  --accent-100: oklch(0.9 calc(var(--primary-chroma) * 0.2) var(--accent-hue));
+  --accent-200: oklch(0.83 calc(var(--primary-chroma) * 0.4) var(--accent-hue));
+  --accent-300: oklch(0.76 calc(var(--primary-chroma) * 0.6) var(--accent-hue));
+  --accent-400: oklch(0.69 calc(var(--primary-chroma) * 0.8) var(--accent-hue));
+  --accent-500: oklch(var(--primary-lightness) var(--primary-chroma) var(--accent-hue));
+  --accent-600: oklch(0.58 calc(var(--primary-chroma) * 1.1) var(--accent-hue));
+  --accent-700: oklch(0.49 calc(var(--primary-chroma) * 1.2) var(--accent-hue));
+  --accent-800: oklch(0.39 calc(var(--primary-chroma) * 1.1) var(--accent-hue));
+  --accent-900: oklch(0.29 calc(var(--primary-chroma) * 0.8) var(--accent-hue));
+  --accent-950: oklch(0.19 calc(var(--primary-chroma) * 0.6) var(--accent-hue));
+
+  // Neutral/Gray Palette (desaturated primary)
+  --neutral-50: oklch(0.98 0.005 var(--primary-hue));
+  --neutral-100: oklch(0.96 0.01 var(--primary-hue));
+  --neutral-200: oklch(0.92 0.015 var(--primary-hue));
+  --neutral-300: oklch(0.86 0.02 var(--primary-hue));
+  --neutral-400: oklch(0.74 0.025 var(--primary-hue));
+  --neutral-500: oklch(0.62 0.03 var(--primary-hue));
+  --neutral-600: oklch(0.52 0.025 var(--primary-hue));
+  --neutral-700: oklch(0.42 0.02 var(--primary-hue));
+  --neutral-800: oklch(0.32 0.015 var(--primary-hue));
+  --neutral-900: oklch(0.22 0.01 var(--primary-hue));
+  --neutral-950: oklch(0.12 0.005 var(--primary-hue));
+
+  // Text Colors
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-tertiary: var(--neutral-500);
+  --text-disabled: var(--neutral-400);
+  --text-inverse: var(--neutral-50);
+  --text-on-primary: oklch(0.98 0.005 var(--primary-hue));
+  --text-on-secondary: oklch(0.98 0.005 var(--secondary-hue));
+  --text-on-accent: oklch(0.98 0.005 var(--accent-hue));
+
+  // Background Colors
+  --bg-primary: var(--neutral-50);
+  --bg-secondary: var(--neutral-100);
+  --bg-tertiary: var(--neutral-200);
+  --bg-inverse: var(--neutral-900);
+  --bg-surface: oklch(1 0 0); // Pure white
+  --bg-surface-variant: var(--neutral-100);
+
+  // Border Colors
+  --border-primary: var(--neutral-300);
+  --border-secondary: var(--neutral-200);
+  --border-accent: var(--primary-300);
+  --border-focus: var(--primary-500);
+
+  // Shadow Colors (using primary hue with very low chroma)
+  --shadow-color: oklch(0.3 0.02 var(--primary-hue));
+  --shadow-xs: 0 1px 2px 0 oklch(var(--shadow-color) / 0.05);
+  --shadow-sm: 0 1px 3px 0 oklch(var(--shadow-color) / 0.1), 0 1px 2px -1px oklch(var(--shadow-color) / 0.1);
+  --shadow-md: 0 4px 6px -1px oklch(var(--shadow-color) / 0.1), 0 2px 4px -2px oklch(var(--shadow-color) / 0.1);
+  --shadow-lg: 0 10px 15px -3px oklch(var(--shadow-color) / 0.1), 0 4px 6px -4px oklch(var(--shadow-color) / 0.1);
+  --shadow-xl: 0 20px 25px -5px oklch(var(--shadow-color) / 0.1), 0 8px 10px -6px oklch(var(--shadow-color) / 0.1);
+  --shadow-2xl: 0 25px 50px -12px oklch(var(--shadow-color) / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 oklch(var(--shadow-color) / 0.05);
+
+  // Status Colors (keeping semantic meaning)
+  --success-500: oklch(0.7 0.15 145);
+  --success-100: oklch(0.95 0.05 145);
+  --success-700: oklch(0.5 0.18 145);
+
+  --warning-500: oklch(0.8 0.15 65);
+  --warning-100: oklch(0.95 0.05 65);
+  --warning-700: oklch(0.6 0.18 65);
+
+  --error-500: oklch(0.65 0.2 25);
+  --error-100: oklch(0.95 0.05 25);
+  --error-700: oklch(0.45 0.22 25);
+
+  --info-500: oklch(0.7 0.15 240);
+  --info-100: oklch(0.95 0.05 240);
+  --info-700: oklch(0.5 0.18 240);
+
+  // Interactive States
+  --hover-overlay: oklch(0 0 0 / 0.05);
+  --active-overlay: oklch(0 0 0 / 0.1);
+  --focus-ring: oklch(var(--primary-lightness) var(--primary-chroma) var(--primary-hue) / 0.3);
+
+  // Spacing and Typography Scale (design tokens)
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+// Dark Mode Theme
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Invert lightness values for dark mode
+    --text-primary: var(--neutral-100);
+    --text-secondary: var(--neutral-300);
+    --text-tertiary: var(--neutral-400);
+    --text-disabled: var(--neutral-600);
+    --text-inverse: var(--neutral-900);
+
+    --bg-primary: var(--neutral-950);
+    --bg-secondary: var(--neutral-900);
+    --bg-tertiary: var(--neutral-800);
+    --bg-inverse: var(--neutral-50);
+    --bg-surface: var(--neutral-900);
+    --bg-surface-variant: var(--neutral-800);
+
+    --border-primary: var(--neutral-700);
+    --border-secondary: var(--neutral-800);
+    --border-accent: var(--primary-600);
+
+    --hover-overlay: oklch(1 0 0 / 0.05);
+    --active-overlay: oklch(1 0 0 / 0.1);
+  }
+}
+
+// Utility Classes
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-surface { background-color: var(--bg-surface); }
+
+.border-primary { border-color: var(--border-primary); }
+.border-secondary { border-color: var(--border-secondary); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+// Color Palette Classes (for primary colors)
+@for $i from 50 through 950 {
+  @if $i == 50 or $i % 100 == 0 or $i == 950 {
+    .text-primary-#{$i} { color: var(--primary-#{$i}); }
+    .bg-primary-#{$i} { background-color: var(--primary-#{$i}); }
+    .border-primary-#{$i} { border-color: var(--primary-#{$i}); }
+
+    .text-secondary-#{$i} { color: var(--secondary-#{$i}); }
+    .bg-secondary-#{$i} { background-color: var(--secondary-#{$i}); }
+    .border-secondary-#{$i} { border-color: var(--secondary-#{$i}); }
+
+    .text-accent-#{$i} { color: var(--accent-#{$i}); }
+    .bg-accent-#{$i} { background-color: var(--accent-#{$i}); }
+    .border-accent-#{$i} { border-color: var(--accent-#{$i}); }
+  }
+}

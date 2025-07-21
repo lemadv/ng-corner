@@ -16,5 +16,5 @@ COPY . .
 # Expose port for Angular dev server
 EXPOSE 4200
 
-# Start the frontend in development mode
-CMD ["npx", "nx", "serve", "blog", "--configuration=development", "--host", "0.0.0.0", "--port", "4200"]
+# Start the frontend in development mode with polling for file changes
+CMD ["npx", "nx", "serve", "blog", "--configuration=development", "--host", "0.0.0.0", "--port", "4200", "--poll", "1000"]

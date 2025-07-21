@@ -1,0 +1,68 @@
+<div class="blog-post-list">
+  @if (vm.loading() && vm.posts().length === 0) {
+    <div class="loading-initial">
+      <div class="loading-spinner"></div>
+      <p>Loading posts...</p>
+    </div>
+  }
+
+  @if (vm.error()) {
+    <div class="error-message">
+      <div class="error-icon">⚠️</div>
+      <h3>Oops! Something went wrong</h3>
+      <p>{{ vm.error() }}</p>
+      <button class="retry-btn" (click)="vm.loadPosts({ page: 1, limit: 10 })">
+        Try Again
+      </button>
+    </div>
+  }
+
+  @if (vm.isEmpty() && !vm.loading() && !vm.error()) {
+    <div class="empty-state">
+      @if (vm.isSearching()) {
+        <div class="empty-icon">🔍</div>
+        <h3>No posts found</h3>
+        <p>We couldn't find any posts matching "{{ vm.searchTerm() }}"</p>
+        <button class="clear-search-btn" (click)="vm.clearSearch()">
+          Clear Search
+        </button>
+      } @else {
+        <div class="empty-icon">📝</div>
+        <h3>No posts yet</h3>
+        <p>Check back later for new content!</p>
+      }
+    </div>
+  }
+
+  @if (vm.hasResults()) {
+    @if (vm.isSearching()) {
+      <div class="search-results-header">
+        <h2>Search Results</h2>
+        <p>Found {{ vm.searchResultsCount() }} posts for "{{ vm.searchTerm() }}"</p>
+      </div>
+    }
+
+    <div class="posts-grid">
+      @for (post of vm.posts(); track trackByPostId($index, post)) {
+        <app-blog-post-card [post]="post" />
+      }
+    </div>
+
+    @if (vm.hasMore()) {
+      <div class="load-more-container">
+        <div #loadMoreTrigger class="load-more-trigger"></div>
+        @if (vm.loading()) {
+          <div class="loading-more">
+            <div class="loading-spinner small"></div>
+            <span>Loading more posts...</span>
+          </div>
+        }
+      </div>
+    } @else if (vm.posts().length > 0) {
+      <div class="end-message">
+        <div class="end-icon">🎉</div>
+        <p>You've reached the end! That's all for now.</p>
+      </div>
+    }
+  }
+</div>
