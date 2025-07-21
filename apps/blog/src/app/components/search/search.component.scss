@@ -80,7 +80,7 @@
 
 @media (max-width: 640px) {
   .search-container {
-    margin: 0 var(--space-md) var(--space-xl);
+    margin: var(--space-xl) var(--space-md) var(--space-xl);
   }
   
   .search-input {
