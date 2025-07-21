@@ -1,9 +1,9 @@
-<footer class="footer">
+<footer class="footer" role="contentinfo" aria-label="Site footer">
   <div class="footer-container">
     <div class="footer-content">
       <div class="footer-brand">
-        <div class="footer-logo">
-          <div class="logo-symbol">
+        <div class="footer-logo" aria-label="ng-corner logo">
+          <div class="logo-symbol" aria-hidden="true">
             <span class="bracket">&lt;</span>
             <span class="ng">ng</span>
             <span class="bracket">/&gt;</span>
@@ -14,48 +14,49 @@
           Where Angular developers gather to share knowledge and build amazing things.
         </p>
       </div>
-      
-      <div class="footer-links">
+
+      <nav class="footer-links" aria-label="Footer navigation">
+        <h2 class="sr-only">Footer Navigation</h2>
         <div class="link-group">
-          <h4>Explore</h4>
-          <ul>
-            <li><a href="#">Latest Posts</a></li>
-            <li><a href="#">Popular Tags</a></li>
-            <li><a href="#">Authors</a></li>
-            <li><a href="#">Archives</a></li>
+          <h3>Explore</h3>
+          <ul role="list">
+            <li><a href="#" aria-label="View latest blog posts">Latest Posts</a></li>
+            <li><a href="#" aria-label="Browse popular tags">Popular Tags</a></li>
+            <li><a href="#" aria-label="View all authors">Authors</a></li>
+            <li><a href="#" aria-label="Browse post archives">Archives</a></li>
           </ul>
         </div>
-        
+
         <div class="link-group">
-          <h4>Community</h4>
-          <ul>
-            <li><a href="#">GitHub</a></li>
-            <li><a href="#">Discord</a></li>
-            <li><a href="#">Twitter</a></li>
-            <li><a href="#">Stack Overflow</a></li>
+          <h3>Community</h3>
+          <ul role="list">
+            <li><a href="#" aria-label="Visit our GitHub repository" rel="external">GitHub</a></li>
+            <li><a href="#" aria-label="Join our Discord server" rel="external">Discord</a></li>
+            <li><a href="#" aria-label="Follow us on Twitter" rel="external">Twitter</a></li>
+            <li><a href="#" aria-label="Find us on Stack Overflow" rel="external">Stack Overflow</a></li>
           </ul>
         </div>
-        
+
         <div class="link-group">
-          <h4>Resources</h4>
-          <ul>
-            <li><a href="#">Angular Docs</a></li>
-            <li><a href="#">TypeScript</a></li>
-            <li><a href="#">RxJS</a></li>
-            <li><a href="#">NgRx</a></li>
+          <h3>Resources</h3>
+          <ul role="list">
+            <li><a href="#" aria-label="Visit Angular documentation" rel="external">Angular Docs</a></li>
+            <li><a href="#" aria-label="Visit TypeScript documentation" rel="external">TypeScript</a></li>
+            <li><a href="#" aria-label="Visit RxJS documentation" rel="external">RxJS</a></li>
+            <li><a href="#" aria-label="Visit NgRx documentation" rel="external">NgRx</a></li>
           </ul>
         </div>
-      </div>
+      </nav>
     </div>
-    
+
     <div class="footer-bottom">
       <div class="copyright">
         <p>&copy; {{ currentYear }} ng-corner. Made with ❤️ for the Angular community.</p>
       </div>
-      <div class="footer-tech">
-        <span class="tech-badge">Angular {{ getAngularVersion() }}</span>
-        <span class="tech-badge">TypeScript</span>
-        <span class="tech-badge">OKLCH</span>
+      <div class="footer-tech" role="complementary" aria-label="Technologies used">
+        <span class="tech-badge" [attr.aria-label]="'Built with Angular version ' + getAngularVersion()">Angular {{ getAngularVersion() }}</span>
+        <span class="tech-badge" aria-label="Built with TypeScript">TypeScript</span>
+        <span class="tech-badge" aria-label="Styled with OKLCH color space">OKLCH</span>
       </div>
     </div>
   </div>

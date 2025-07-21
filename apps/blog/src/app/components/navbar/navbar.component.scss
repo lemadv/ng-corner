@@ -52,10 +52,13 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .navbar-item {
-  color: var(--text-secondary);
+  color: var(--text-primary); // Changed from text-secondary for better contrast
   text-decoration: none;
   font-weight: 500;
   padding: var(--space-sm) var(--space-md);
@@ -64,13 +67,14 @@
   position: relative;
 
   &:hover {
-    color: var(--primary-600);
+    color: var(--primary-700); // Darker for better contrast
     background-color: var(--primary-50);
   }
 
   &.active {
-    color: var(--primary-600);
-    background-color: var(--primary-100);
+    color: var(--primary-900); // Much darker for better contrast
+    background-color: var(--primary-200); // Darker background for better contrast
+    font-weight: 600; // Added weight for emphasis
 
     &::after {
       content: '';

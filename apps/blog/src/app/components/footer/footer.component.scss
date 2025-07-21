@@ -1,3 +1,15 @@
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .footer {
   background: linear-gradient(135deg, var(--primary-900), var(--primary-800));
   color: var(--text-on-primary);
@@ -5,6 +17,8 @@
   padding: var(--space-2xl) 0 var(--space-lg);
   position: relative;
   overflow: hidden;
+  min-height: 300px; // Prevent layout shifts
+  contain: layout; // Optimize rendering
 
   &::before {
     content: '';
@@ -34,6 +48,7 @@
   grid-template-columns: 1fr 2fr;
   gap: var(--space-2xl);
   margin-bottom: var(--space-2xl);
+  min-height: 200px; // Prevent layout shifts
 }
 
 .footer-brand {
@@ -113,13 +128,13 @@
     color: var(--primary-200);
     text-decoration: none;
     font-size: 0.875rem;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease; // Remove transform to prevent layout shifts
     padding: var(--space-xs) 0;
     border-radius: var(--radius-sm);
+    will-change: color; // Optimize for color changes
 
     &:hover {
       color: var(--secondary-300);
-      transform: translateX(4px);
     }
   }
 }

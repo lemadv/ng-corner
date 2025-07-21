@@ -1,8 +1,9 @@
-<div class="blog-post-list">
+<section class="blog-post-list" aria-label="Blog posts">
   @if (vm.loading() && vm.posts().length === 0) {
-    <div class="loading-initial">
-      <div class="loading-spinner"></div>
-      <p>Loading posts...</p>
+    <div class="posts-grid" role="list" aria-label="Loading blog posts">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <app-skeleton role="listitem" />
+      }
     </div>
   }
 
@@ -37,14 +38,15 @@
   @if (vm.hasResults()) {
     @if (vm.isSearching()) {
       <div class="search-results-header">
-        <h2>Search Results</h2>
+        <h2 class="sr-only">Blog Posts</h2>
+        <h3>Search Results</h3>
         <p>Found {{ vm.searchResultsCount() }} posts for "{{ vm.searchTerm() }}"</p>
       </div>
     }
 
-    <div class="posts-grid">
+    <div class="posts-grid" role="list" aria-label="Blog post previews">
       @for (post of vm.posts(); track trackByPostId($index, post)) {
-        <app-blog-post-card [post]="post" />
+        <app-blog-post-card [post]="post" role="listitem" />
       }
     </div>
 
@@ -52,8 +54,8 @@
       <div class="load-more-container">
         <div #loadMoreTrigger class="load-more-trigger"></div>
         @if (vm.loading()) {
-          <div class="loading-more">
-            <div class="loading-spinner small"></div>
+          <div class="loading-more" role="status" aria-label="Loading more posts">
+            <div class="loading-spinner small" aria-hidden="true"></div>
             <span>Loading more posts...</span>
           </div>
         }
@@ -65,4 +67,4 @@
       </div>
     }
   }
-</div>
+</section>

@@ -43,7 +43,7 @@
 }
 
 .post-author {
-  color: var(--text-secondary);
+  color: var(--text-primary); // Changed for better contrast
   font-weight: 500;
 }
 
@@ -54,12 +54,12 @@
 }
 
 .post-date {
-  color: var(--text-tertiary);
+  color: var(--text-secondary); // Changed from tertiary for better contrast
   font-size: 0.8125rem;
 }
 
 .post-modified {
-  color: var(--accent-600);
+  color: var(--accent-700); // Darker for better contrast
   font-size: 0.75rem;
   font-style: italic;
 }
@@ -70,7 +70,7 @@
 
 .post-excerpt {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary); // Changed for better contrast
   line-height: 1.6;
   font-size: 0.9375rem;
 }
@@ -84,12 +84,12 @@
 .tag {
   display: inline-block;
   padding: var(--space-xs) var(--space-sm);
-  background-color: var(--primary-100);
-  color: var(--primary-700);
+  background-color: var(--primary-200); // Darker background for better contrast
+  color: var(--primary-800); // Darker text for better contrast
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 500;
-  border: 1px solid var(--primary-200);
+  border: 1px solid var(--primary-300);
 }
 
 .post-actions {
@@ -102,7 +102,7 @@
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-sm) var(--space-md);
-  background-color: var(--primary-500);
+  background-color: var(--primary-700); // Darker for better contrast
   color: var(--text-on-primary);
   border: none;
   border-radius: var(--radius-md);
@@ -113,7 +113,7 @@
   text-decoration: none;
 
   &:hover {
-    background-color: var(--primary-600);
+    background-color: var(--primary-800); // Darker hover state
     box-shadow: var(--shadow-sm);
     transform: translateX(2px);
   }

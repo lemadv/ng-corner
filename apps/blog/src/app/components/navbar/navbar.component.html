@@ -1,19 +1,30 @@
-<nav class="navbar">
+<nav class="navbar" role="navigation" aria-label="Main navigation">
   <div class="navbar-container">
-    <div class="navbar-brand">
-      <div class="logo-placeholder">
+    <a routerLink="/" class="navbar-brand" aria-label="ng-corner home">
+      <div class="logo-placeholder" aria-hidden="true">
         <span class="logo-text">NG</span>
       </div>
       <span class="brand-text">ng-corner</span>
-    </div>
+    </a>
     
-    <div class="navbar-menu">
-      <a routerLink="/" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        Home
-      </a>
-      <a routerLink="/contact" class="navbar-item" routerLinkActive="active">
-        Contact
-      </a>
-    </div>
+    <ul class="navbar-menu">
+      <li>
+        <a routerLink="/" 
+           class="navbar-item" 
+           routerLinkActive="active" 
+           [routerLinkActiveOptions]="{exact: true}"
+           aria-label="Navigate to home page">
+          Home
+        </a>
+      </li>
+      <li>
+        <a routerLink="/contact" 
+           class="navbar-item" 
+           routerLinkActive="active"
+           aria-label="Navigate to contact page">
+          Contact
+        </a>
+      </li>
+    </ul>
   </div>
 </nav>

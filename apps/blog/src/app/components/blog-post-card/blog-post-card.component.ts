@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { BlogPost } from '../../models/blog-post.interface';
 
@@ -6,7 +6,8 @@ import { BlogPost } from '../../models/blog-post.interface';
   selector: 'app-blog-post-card',
   imports: [DatePipe],
   templateUrl: './blog-post-card.component.html',
-  styleUrl: './blog-post-card.component.scss'
+  styleUrl: './blog-post-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlogPostCardComponent {
   post = input.required<BlogPost>();

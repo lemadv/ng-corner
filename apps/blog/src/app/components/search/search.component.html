@@ -1,27 +1,34 @@
-<div class="search-container">
+<div class="search-container" role="search">
   <div class="search-input-wrapper">
-    <div class="search-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="search-icon" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.35-4.35"></path>
       </svg>
     </div>
+    <label for="search-input" class="sr-only">Search blog posts</label>
     <input 
+      id="search-input"
       type="text" 
       class="search-input"
       placeholder="Search by title or content..."
       [(ngModel)]="localSearchTerm"
       (input)="onSearchChange()"
       (keyup.enter)="onSearch()"
+      autocomplete="off"
+      role="searchbox"
+      aria-label="Search blog posts by title or content"
+      [attr.aria-expanded]="localSearchTerm() ? 'true' : 'false'"
     />
     @if (localSearchTerm()) {
       <button 
         type="button" 
         class="clear-button"
         (click)="clearSearch()"
-        aria-label="Clear search"
+        aria-label="Clear search input"
+        title="Clear search"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -29,7 +36,7 @@
     }
   </div>
   @if (localSearchTerm()) {
-    <div class="search-results-info">
+    <div class="search-results-info" role="status" aria-live="polite">
       <span class="results-text">Searching for: <strong>"{{ localSearchTerm() }}"</strong></span>
     </div>
   }

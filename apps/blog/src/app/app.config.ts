@@ -3,8 +3,8 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { appRoutes } from './app.routes';
 import {
   provideClientHydration,
@@ -15,8 +15,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideClientHydration(withEventReplay()),
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(appRoutes),
-    provideHttpClient(withFetch()),
+    provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
+    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
+    provideHttpClient(withFetch(), withInterceptorsFromDi()),
   ],
 };

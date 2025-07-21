@@ -1,4 +1,4 @@
-import { Component, signal, effect } from '@angular/core';
+import { Component, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { createBlogPostsViewModel } from '../../view-models/blog-posts.view-model';
 
@@ -6,7 +6,8 @@ import { createBlogPostsViewModel } from '../../view-models/blog-posts.view-mode
   selector: 'app-search',
   imports: [FormsModule],
   templateUrl: './search.component.html',
-  styleUrl: './search.component.scss'
+  styleUrl: './search.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchComponent {
   vm = createBlogPostsViewModel();

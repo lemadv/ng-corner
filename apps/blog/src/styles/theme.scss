@@ -61,10 +61,10 @@
   --neutral-900: oklch(0.22 0.01 var(--primary-hue));
   --neutral-950: oklch(0.12 0.005 var(--primary-hue));
 
-  // Text Colors
-  --text-primary: var(--neutral-900);
-  --text-secondary: var(--neutral-700);
-  --text-tertiary: var(--neutral-500);
+  // Text Colors (Enhanced for better contrast)
+  --text-primary: oklch(0.15 0.01 var(--primary-hue)); // Darker for better contrast
+  --text-secondary: oklch(0.35 0.02 var(--primary-hue)); // Darker than neutral-700
+  --text-tertiary: oklch(0.45 0.025 var(--primary-hue)); // Darker than neutral-500
   --text-disabled: var(--neutral-400);
   --text-inverse: var(--neutral-50);
   --text-on-primary: oklch(0.98 0.005 var(--primary-hue));

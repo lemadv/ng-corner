@@ -1,12 +1,14 @@
-import { Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { BlogPostCardComponent } from '../blog-post-card/blog-post-card.component';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 import { createBlogPostsViewModel } from '../../view-models/blog-posts.view-model';
 
 @Component({
   selector: 'app-blog-post-list',
-  imports: [BlogPostCardComponent],
+  imports: [BlogPostCardComponent, SkeletonComponent],
   templateUrl: './blog-post-list.component.html',
-  styleUrl: './blog-post-list.component.scss'
+  styleUrl: './blog-post-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlogPostListComponent implements OnInit, AfterViewInit {
   @ViewChild('loadMoreTrigger', { static: false }) loadMoreTrigger!: ElementRef;

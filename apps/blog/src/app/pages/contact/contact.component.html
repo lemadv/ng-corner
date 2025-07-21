@@ -12,55 +12,55 @@
   <div class="contact-container">
 
     <div class="contact-content">
-      <div class="contact-info">
+      <div class="contact-info" role="complementary" aria-label="Contact information">
         <div class="info-card">
-          <div class="info-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M3 8l7.89 4.26c.67.36 1.45.36 2.12 0L21 8"></path>
               <path d="M3 8v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8"></path>
               <path d="M21 8L12 2 3 8"></path>
             </svg>
           </div>
-          <h3>Email</h3>
-          <p>hello@ng-corner.dev</p>
+          <h2>Email</h2>
+          <p><a href="mailto:hello@ng-corner.dev" aria-label="Send email to hello@ng-corner.dev">hello@ng-corner.dev</a></p>
         </div>
 
         <div class="info-card">
-          <div class="info-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
               <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path>
             </svg>
           </div>
-          <h3>Location</h3>
+          <h2>Location</h2>
           <p>Remote & Global</p>
         </div>
 
         <div class="info-card">
-          <div class="info-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="info-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
             </svg>
           </div>
-          <h3>Response Time</h3>
+          <h2>Response Time</h2>
           <p>Within 24 hours</p>
         </div>
       </div>
 
       <div class="contact-form-section">
         @if (submitted()) {
-          <div class="success-message">
-            <div class="success-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="success-message" role="alert" aria-live="polite">
+            <div class="success-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22,4 12,14.01 9,11.01"></polyline>
               </svg>
             </div>
-            <h3>Message Sent Successfully!</h3>
+            <h2>Message Sent Successfully!</h2>
             <p>Thank you for reaching out. We'll get back to you soon.</p>
           </div>
         } @else {
-          <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+          <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form" novalidate aria-label="Contact form">
             <div class="form-row">
               <div class="form-group">
                 <label for="name" class="form-label">Name *</label>
@@ -73,7 +73,7 @@
                   placeholder="Your full name"
                 />
                 @if (getFieldError('name')) {
-                  <span class="error-message">{{ getFieldError('name') }}</span>
+                  <span class="error-message" role="alert" aria-live="polite">{{ getFieldError('name') }}</span>
                 }
               </div>
 
@@ -88,7 +88,7 @@
                   placeholder="your.email@example.com"
                 />
                 @if (getFieldError('email')) {
-                  <span class="error-message">{{ getFieldError('email') }}</span>
+                  <span class="error-message" role="alert" aria-live="polite">{{ getFieldError('email') }}</span>
                 }
               </div>
             </div>
@@ -104,7 +104,7 @@
                 placeholder="What's this about?"
               />
               @if (getFieldError('subject')) {
-                <span class="error-message">{{ getFieldError('subject') }}</span>
+                <span class="error-message" role="alert" aria-live="polite">{{ getFieldError('subject') }}</span>
               }
             </div>
 
@@ -119,7 +119,7 @@
                 rows="6"
               ></textarea>
               @if (getFieldError('message')) {
-                <span class="error-message">{{ getFieldError('message') }}</span>
+                <span class="error-message" role="alert" aria-live="polite">{{ getFieldError('message') }}</span>
               }
             </div>
 
@@ -127,13 +127,15 @@
               type="submit"
               class="submit-button"
               [disabled]="loading()"
+              [attr.aria-busy]="loading()"
+              aria-label="Submit contact form"
             >
               @if (loading()) {
-                <div class="loading-spinner"></div>
+                <div class="loading-spinner" aria-hidden="true"></div>
                 <span>Sending...</span>
               } @else {
                 <span>Send Message</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
                 </svg>

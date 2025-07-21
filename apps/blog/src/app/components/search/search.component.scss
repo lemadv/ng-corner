@@ -3,6 +3,18 @@
   margin: var(--space-2xl) auto var(--space-xl);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .search-input-wrapper {
   position: relative;
   display: flex;
@@ -12,7 +24,7 @@
 .search-icon {
   position: absolute;
   left: var(--space-md);
-  color: var(--text-tertiary);
+  color: var(--text-secondary); // Changed for better contrast
   pointer-events: none;
   z-index: 2;
 }
@@ -35,7 +47,7 @@
   }
 
   &::placeholder {
-    color: var(--text-tertiary);
+    color: var(--text-secondary); // Changed for better contrast
   }
 }
 
@@ -44,7 +56,7 @@
   right: var(--space-md);
   background: none;
   border: none;
-  color: var(--text-tertiary);
+  color: var(--text-secondary); // Changed for better contrast
   cursor: pointer;
   padding: var(--space-xs);
   border-radius: var(--radius-sm);
@@ -54,7 +66,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    color: var(--text-secondary);
+    color: var(--text-primary); // Changed for better contrast
     background-color: var(--bg-secondary);
   }
 
