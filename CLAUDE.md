@@ -145,7 +145,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is an Nx monorepo containing an Angular blog application with frontend and backend components:
 
 - **blog** (apps/blog): Angular 20 SSR application with SCSS styling
-- **blog-be** (apps/blog-be): Express.js backend API
+- **blog-be** (apps/blog-be): Express.js backend API with PostgreSQL and Prisma
 - **blog-e2e**: Playwright E2E tests for the frontend
 - **blog-be-e2e**: Jest E2E tests for the backend
 
@@ -225,10 +225,13 @@ npx nx graph
   - SSR: apps/blog/src/server.ts
 
 ### Backend (Express)
-- **Framework**: Express.js
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL with Prisma ORM
 - **Entry Point**: apps/blog-be/src/main.ts
 - **Default Port**: 3333
 - **API Endpoint**: /api
+- **Features**: JWT authentication, password reset, user management
+- **Security**: Helmet, CORS, rate limiting, request validation
 
 ### Testing Strategy
 - **Unit Tests**: Jest with jest-preset-angular for Angular components
@@ -258,6 +261,7 @@ docker-compose down
 ### Access Applications
 - **Frontend**: http://localhost:4200
 - **Backend API**: http://localhost:3333/api
+- **PostgreSQL**: localhost:5432 (blog_db/blog_user/blog_password)
 
 ### Docker Features
 - **Hot Reload**: Changes in source code automatically trigger recompilation
@@ -265,6 +269,7 @@ docker-compose down
 - **Nx Cache Isolation**: `.nx` directory is excluded to prevent Windows cache conflicts
 - **Node 22 Alpine**: Clean environment with latest Node.js
 - **Proxy Configuration**: Frontend automatically proxies `/api/*` requests to backend (no CORS issues)
+- **PostgreSQL Service**: Includes health checks and automatic database initialization
 
 ### Rebuild Services
 ```bash
@@ -275,6 +280,29 @@ docker-compose build backend
 # Rebuild and restart
 docker-compose up --build
 ```
+
+## Database Management
+
+### Prisma Commands
+```bash
+# Generate Prisma client
+DATABASE_URL="postgresql://blog_user:blog_password@localhost:5432/blog_db" npx prisma generate
+
+# Run database migrations
+DATABASE_URL="postgresql://blog_user:blog_password@localhost:5432/blog_db" npx prisma migrate dev --name init
+
+# Reset database (development only)
+DATABASE_URL="postgresql://blog_user:blog_password@localhost:5432/blog_db" npx prisma migrate reset --force
+
+# Access Prisma Studio
+DATABASE_URL="postgresql://blog_user:blog_password@localhost:5432/blog_db" npx prisma studio
+```
+
+### Database Schema
+- **Users**: Authentication, profiles, OAuth support (Google, GitHub)
+- **RefreshTokens**: Secure token management with device tracking
+- **BlogPosts**: Content management with SEO fields
+- **Tags**: Categorization system with many-to-many relationships
 
 ## Code Generation
 
@@ -289,3 +317,23 @@ npx nx g @nx/angular:lib my-lib
 npx nx list
 npx nx list @nx/angular
 ```
+
+## Important Architecture Patterns
+
+### Frontend Architecture
+- **State Management**: NgRx Signal Store for complex state, Angular Signals for local state
+- **Component Structure**: Standalone components with OnPush change detection
+- **Data Access**: Service layer with proper HTTP interceptors
+- **Routing**: Lazy-loaded routes with resolvers for data fetching
+
+### Backend Architecture
+- **Authentication**: JWT tokens with refresh token rotation
+- **Security**: Multi-layer security with rate limiting, validation middleware
+- **Database**: Prisma ORM with migrations and connection pooling
+- **Error Handling**: Centralized error handling with proper logging
+- **API Structure**: RESTful endpoints with consistent response formats
+
+### Key Dependencies
+- **Frontend**: Angular 20, NgRx Signals, RxJS, Angular Material (potential)
+- **Backend**: Express.js, Prisma, PostgreSQL, JWT, bcrypt, Helmet, CORS
+- **Development**: Nx 21.3.1, TypeScript 5.8, ESLint, Prettier, Jest, Playwright

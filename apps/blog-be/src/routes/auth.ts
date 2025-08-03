@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { UserModel, CreateUserData } from '../models/User';
+import { UserService, CreateUserData } from '../services/user.service';
+import { RefreshTokenService } from '../services/refresh-token.service';
 import { RefreshTokenModel } from '../models/RefreshToken';
 import { AuthService } from '../utils/auth';
 import { 
@@ -13,7 +14,14 @@ import {
   emailVerificationLimiter,
   logSecurityEvent
 } from '../middleware/security';
-import validator from 'validator';
+import { validate } from '../middleware/validation';
+import {
+  registerSchema,
+  loginSchema,
+  verifyEmailSchema,
+  resendVerificationSchema,
+  refreshTokenSchema
+} from '../schemas/auth.schemas';
 
 const router = express.Router();
 
@@ -21,53 +29,23 @@ const router = express.Router();
  * POST /auth/register
  * Register a new user account
  */
-router.post('/register', authLimiter, async (req: Request, res: Response) => {
+router.post('/register', authLimiter, validate(registerSchema), async (req: Request, res: Response) => {
   try {
     const { email, password, firstName, lastName } = req.body;
 
-    // Validate required fields
-    if (!email || !password) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        message: 'Email and password are required'
-      });
-    }
-
-    // Validate email format
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({
-        error: 'Invalid email',
-        message: 'Please provide a valid email address'
-      });
-    }
-
-    // Validate password strength
-    const passwordStrength = AuthService.getPasswordStrength(password);
-    if (passwordStrength.score < 4) {
-      return res.status(400).json({
-        error: 'Weak password',
-        message: 'Password does not meet security requirements',
-        requirements: passwordStrength.feedback
-      });
-    }
-
-    // Sanitize names
-    const cleanFirstName = firstName ? validator.escape(firstName.trim()) : undefined;
-    const cleanLastName = lastName ? validator.escape(lastName.trim()) : undefined;
-
     const userData: CreateUserData = {
-      email: email.toLowerCase().trim(),
+      email,
       password,
-      first_name: cleanFirstName,
-      last_name: cleanLastName,
-      provider: 'local'
+      firstName,
+      lastName,
+      provider: 'LOCAL'
     };
 
     // Create user
-    const user = await UserModel.create(userData);
+    const user = await UserService.create(userData);
 
     // Generate email verification token
-    const verificationToken = await UserModel.setEmailVerificationToken(user.id);
+    const verificationToken = await UserService.setEmailVerificationToken(user.id);
 
     // TODO: Send verification email (implement email service)
     console.log(`Email verification token for ${user.email}: ${verificationToken}`);
@@ -84,12 +62,12 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email_verified: user.email_verified,
-        created_at: user.created_at
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt
       },
-      next_step: 'Please check your email to verify your account'
+      nextStep: 'Please check your email to verify your account'
     });
 
   } catch (error) {
@@ -113,32 +91,16 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
  * POST /auth/login
  * Authenticate user and return tokens
  */
-router.post('/login', authLimiter, async (req: Request, res: Response) => {
+router.post('/login', authLimiter, validate(loginSchema), async (req: Request, res: Response) => {
   try {
     const { email, password, rememberMe = false } = req.body;
 
-    // Validate required fields
-    if (!email || !password) {
-      return res.status(400).json({
-        error: 'Missing credentials',
-        message: 'Email and password are required'
-      });
-    }
-
-    // Validate email format
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({
-        error: 'Invalid email',
-        message: 'Please provide a valid email address'
-      });
-    }
-
     // Verify credentials
-    const user = await UserModel.verifyCredentials(email.toLowerCase().trim(), password);
+    const user = await UserService.verifyCredentials(email, password);
 
     if (!user) {
       logSecurityEvent('failed_login_attempt', {
-        email: email.toLowerCase().trim(),
+        email,
         ip: req.ip
       }, req);
 
@@ -149,7 +111,7 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
     }
 
     // Check if email is verified for local accounts
-    if (user.provider === 'local' && !user.email_verified) {
+    if (user.provider === 'LOCAL' && !user.emailVerified) {
       return res.status(403).json({
         error: 'Email not verified',
         message: 'Please verify your email address before logging in',
@@ -160,14 +122,13 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
     // Generate tokens
     const tokenPair = await AuthService.generateTokenPair(user.id, user.email);
 
-    // Store refresh token
-    const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    // Store refresh token in database
     await RefreshTokenModel.create({
-      user_id: user.id,
+      userId: user.id,
       token: tokenPair.refreshToken,
-      expires_at: refreshTokenExpiry,
-      ip_address: req.ip,
-      user_agent: req.get('User-Agent')
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
     });
 
     // Log successful login
@@ -192,9 +153,9 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email_verified: user.email_verified,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailVerified: user.emailVerified,
         provider: user.provider
       },
       accessToken: tokenPair.accessToken,
@@ -222,7 +183,7 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
  * POST /auth/refresh
  * Refresh access token using refresh token
  */
-router.post('/refresh', authenticateRefreshToken, async (req: Request, res: Response) => {
+router.post('/refresh', validate(refreshTokenSchema), authenticateRefreshToken, async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body;
     const cookieRefreshToken = req.cookies.refreshToken;
@@ -241,14 +202,16 @@ router.post('/refresh', authenticateRefreshToken, async (req: Request, res: Resp
     const tokenPair = await AuthService.generateTokenPair(req.user.id, req.user.email);
 
     // Rotate refresh token for security
-    const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    await RefreshTokenModel.rotate(token, {
-      user_id: req.user.id,
-      token: tokenPair.refreshToken,
-      expires_at: refreshTokenExpiry,
-      ip_address: req.ip,
-      user_agent: req.get('User-Agent')
-    });
+    const tokenRecord = await RefreshTokenModel.findByToken(token);
+    if (tokenRecord) {
+      await RefreshTokenModel.rotate(token, {
+        userId: req.user.id,
+        token: tokenPair.refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+    }
 
     // Update refresh token cookie
     const cookieOptions = {
@@ -286,7 +249,10 @@ router.post('/logout', authenticateToken, async (req: Request, res: Response) =>
 
     if (refreshToken) {
       // Revoke the refresh token
-      await RefreshTokenModel.revoke(refreshToken);
+      const tokenRecord = await RefreshTokenModel.findByToken(refreshToken);
+      if (tokenRecord) {
+        await RefreshTokenModel.revoke(refreshToken);
+      }
     }
 
     // Clear refresh token cookie
@@ -362,7 +328,7 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
       });
     }
 
-    const userProfile = await UserModel.getPublicProfile(req.user.id);
+    const userProfile = await UserService.getPublicProfile(req.user.id);
 
     if (!userProfile) {
       return res.status(404).json({
@@ -388,18 +354,11 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
  * POST /auth/verify-email
  * Verify email address with token
  */
-router.post('/verify-email', async (req: Request, res: Response) => {
+router.post('/verify-email', validate(verifyEmailSchema), async (req: Request, res: Response) => {
   try {
     const { token } = req.body;
 
-    if (!token) {
-      return res.status(400).json({
-        error: 'Missing token',
-        message: 'Email verification token is required'
-      });
-    }
-
-    const user = await UserModel.verifyEmail(token);
+    const user = await UserService.verifyEmail(token);
 
     if (!user) {
       return res.status(400).json({
@@ -419,7 +378,7 @@ router.post('/verify-email', async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
-        email_verified: user.email_verified
+        emailVerified: user.emailVerified
       }
     });
 
@@ -436,18 +395,11 @@ router.post('/verify-email', async (req: Request, res: Response) => {
  * POST /auth/resend-verification
  * Resend email verification
  */
-router.post('/resend-verification', emailVerificationLimiter, async (req: Request, res: Response) => {
+router.post('/resend-verification', emailVerificationLimiter, validate(resendVerificationSchema), async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
-    if (!email || !validator.isEmail(email)) {
-      return res.status(400).json({
-        error: 'Invalid email',
-        message: 'Please provide a valid email address'
-      });
-    }
-
-    const user = await UserModel.findByEmail(email.toLowerCase().trim());
+    const user = await UserService.findByEmail(email);
 
     if (!user) {
       // Don't reveal if user exists for security
@@ -456,7 +408,7 @@ router.post('/resend-verification', emailVerificationLimiter, async (req: Reques
       });
     }
 
-    if (user.email_verified) {
+    if (user.emailVerified) {
       return res.status(400).json({
         error: 'Already verified',
         message: 'Email address is already verified'
@@ -464,7 +416,7 @@ router.post('/resend-verification', emailVerificationLimiter, async (req: Reques
     }
 
     // Generate new verification token
-    const verificationToken = await UserModel.setEmailVerificationToken(user.id);
+    const verificationToken = await UserService.setEmailVerificationToken(user.id);
 
     // TODO: Send verification email
     console.log(`New verification token for ${user.email}: ${verificationToken}`);

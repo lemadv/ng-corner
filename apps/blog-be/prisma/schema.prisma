@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String    @id @default(uuid())
+  email                     String    @unique
+  passwordHash              String?   @map("password_hash")
+  firstName                 String?   @map("first_name") @db.VarChar(100)
+  lastName                  String?   @map("last_name") @db.VarChar(100)
+  profilePicture            String?   @map("profile_picture") @db.VarChar(500)
+  emailVerified             Boolean   @default(false) @map("email_verified")
+  emailVerificationToken    String?   @map("email_verification_token")
+  emailVerificationExpires  DateTime? @map("email_verification_expires")
+  passwordResetToken        String?   @map("password_reset_token")
+  passwordResetExpires      DateTime? @map("password_reset_expires")
+  
+  // OAuth fields
+  googleId                  String?   @unique @map("google_id")
+  provider                  Provider  @default(LOCAL)
+  
+  // Security fields
+  failedLoginAttempts       Int       @default(0) @map("failed_login_attempts")
+  accountLockedUntil        DateTime? @map("account_locked_until")
+  lastLogin                 DateTime? @map("last_login")
+  
+  // Audit fields
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+  createdBy                 String?   @map("created_by")
+  updatedBy                 String?   @map("updated_by")
+  
+  // Relations
+  refreshTokens             RefreshToken[]
+  blogPosts                 BlogPost[] @relation("BlogPostAuthor")
+  createdUsers              User[]     @relation("UserCreatedBy")
+  updatedUsers              User[]     @relation("UserUpdatedBy")
+  createdByUser             User?      @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser             User?      @relation("UserUpdatedBy", fields: [updatedBy], references: [id])
+  
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  tokenHash   String    @map("token_hash")
+  expiresAt   DateTime  @map("expires_at")
+  revoked     Boolean   @default(false)
+  revokedAt   DateTime? @map("revoked_at")
+  
+  // Device/session tracking
+  deviceInfo  Json?     @map("device_info")
+  ipAddress   String?   @map("ip_address") @db.Inet
+  userAgent   String?   @map("user_agent") @db.Text
+  
+  // Audit fields
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("refresh_tokens")
+}
+
+// Blog Post models (for future expansion)
+model BlogPost {
+  id          String    @id @default(uuid())
+  title       String    @db.VarChar(255)
+  slug        String    @unique @db.VarChar(255)
+  content     String    @db.Text
+  excerpt     String?   @db.Text
+  published   Boolean   @default(false)
+  publishedAt DateTime? @map("published_at")
+  
+  // SEO fields
+  metaTitle       String? @map("meta_title") @db.VarChar(255)
+  metaDescription String? @map("meta_description") @db.VarChar(500)
+  
+  // Author and audit
+  authorId    String    @map("author_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  author      User      @relation("BlogPostAuthor", fields: [authorId], references: [id])
+  tags        BlogPostTag[]
+  
+  @@map("blog_posts")
+}
+
+model Tag {
+  id          String    @id @default(uuid())
+  name        String    @unique @db.VarChar(50)
+  slug        String    @unique @db.VarChar(50)
+  description String?   @db.Text
+  color       String?   @db.VarChar(7) // For hex colors
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  posts       BlogPostTag[]
+  
+  @@map("tags")
+}
+
+model BlogPostTag {
+  blogPostId  String    @map("blog_post_id")
+  tagId       String    @map("tag_id")
+  
+  // Relations
+  blogPost    BlogPost  @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tag         Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@id([blogPostId, tagId])
+  @@map("blog_post_tags")
+}
+
+// Enums
+enum Provider {
+  LOCAL
+  GOOGLE
+  GITHUB
+  // Add more providers as needed
+}
+

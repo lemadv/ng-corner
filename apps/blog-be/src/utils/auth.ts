@@ -155,7 +155,7 @@ export class AuthService {
   /**
    * Hash refresh token for storage
    */
-  static async hashRefreshToken(token: string): Promise<string> {
+  static hashRefreshToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
   }
 

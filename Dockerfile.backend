@@ -13,8 +13,11 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Generate Prisma client
+RUN npx prisma generate --schema=./apps/blog-be/prisma/schema.prisma
+
 # Expose port for Express server
 EXPOSE 3333
 
 # Start the backend in development mode
-CMD ["npx", "nx", "serve", "blog-be", "--configuration=development", "--host", "0.0.0.0"]
+CMD ["sh", "-c", "npx prisma generate --schema=./apps/blog-be/prisma/schema.prisma && npx nx serve blog-be --configuration=development --host 0.0.0.0"]

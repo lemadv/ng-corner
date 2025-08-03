@@ -53,7 +53,7 @@ export const authenticateToken = async (
     }
 
     // Check if account is locked
-    if (user.account_locked_until && user.account_locked_until > new Date()) {
+    if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
       res.status(423).json({
         error: 'Account locked',
         message: 'Account is temporarily locked'
@@ -65,7 +65,7 @@ export const authenticateToken = async (
     req.user = {
       id: user.id,
       email: user.email,
-      email_verified: user.email_verified,
+      email_verified: user.emailVerified,
       provider: user.provider
     };
     req.tokenPayload = decoded;
@@ -109,11 +109,11 @@ export const optionalAuth = async (
       const decoded = await AuthService.verifyAccessToken(token);
       const user = await UserModel.findById(decoded.userId);
       
-      if (user && (!user.account_locked_until || user.account_locked_until <= new Date())) {
+      if (user && (!user.accountLockedUntil || user.accountLockedUntil <= new Date())) {
         req.user = {
           id: user.id,
           email: user.email,
-          email_verified: user.email_verified,
+          email_verified: user.emailVerified,
           provider: user.provider
         };
         req.tokenPayload = decoded;
@@ -192,7 +192,7 @@ export const authenticateRefreshToken = async (
     req.user = {
       id: user.id,
       email: user.email,
-      email_verified: user.email_verified,
+      email_verified: user.emailVerified,
       provider: user.provider
     };
     req.tokenPayload = decoded;

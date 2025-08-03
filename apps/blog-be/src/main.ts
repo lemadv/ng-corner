@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 
 // Import our custom modules
-import { db } from './database/connection';
+import { connectDatabase, disconnectDatabase, checkDatabaseHealth, runMigrations } from './lib/prisma';
 import authRoutes from './routes/auth';
 import passwordRoutes from './routes/password';
 import {
@@ -94,10 +94,18 @@ function getRandomTags(index: number): string[] {
   return allTags.slice(index % 4, (index % 4) + numTags);
 }
 
-// Initialize database connection and run migrations
+// Initialize database connection, run migrations, and check health
 async function initializeDatabase() {
   try {
-    await db.runMigrations();
+    await connectDatabase();
+    
+    // Run migrations
+    await runMigrations();
+    
+    const isHealthy = await checkDatabaseHealth();
+    if (!isHealthy) {
+      throw new Error('Database health check failed');
+    }
     console.log('✅ Database initialized successfully');
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
@@ -206,7 +214,7 @@ async function startServer() {
       console.log('🛑 Received SIGTERM, shutting down gracefully...');
       server.close(async () => {
         console.log('✅ Server closed');
-        await db.close();
+        await disconnectDatabase();
         console.log('✅ Database connections closed');
         process.exit(0);
       });
@@ -216,7 +224,7 @@ async function startServer() {
       console.log('🛑 Received SIGINT, shutting down gracefully...');
       server.close(async () => {
         console.log('✅ Server closed');
-        await db.close();
+        await disconnectDatabase();
         console.log('✅ Database connections closed');
         process.exit(0);
       });

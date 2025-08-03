@@ -1,27 +1,14 @@
-import { db } from '../database/connection';
+import { prisma } from '../lib/prisma';
 import { AuthService } from '../utils/auth';
-
-export interface RefreshToken {
-  id: string;
-  user_id: string;
-  token_hash: string;
-  expires_at: Date;
-  revoked: boolean;
-  revoked_at?: Date;
-  device_info?: any;
-  ip_address?: string;
-  user_agent?: string;
-  created_at: Date;
-  updated_at: Date;
-}
+import { RefreshToken } from '@prisma/client';
 
 export interface CreateRefreshTokenData {
-  user_id: string;
+  userId: string;
   token: string;
-  expires_at: Date;
-  device_info?: any;
-  ip_address?: string;
-  user_agent?: string;
+  expiresAt: Date;
+  deviceInfo?: any;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export class RefreshTokenModel {
@@ -30,111 +17,124 @@ export class RefreshTokenModel {
    */
   static async create(tokenData: CreateRefreshTokenData): Promise<RefreshToken> {
     const {
-      user_id,
+      userId,
       token,
-      expires_at,
-      device_info,
-      ip_address,
-      user_agent
+      expiresAt,
+      deviceInfo,
+      ipAddress,
+      userAgent
     } = tokenData;
 
     // Hash the token before storing
-    const token_hash = await AuthService.hashRefreshToken(token);
+    const tokenHash = await AuthService.hashRefreshToken(token);
 
-    const query = `
-      INSERT INTO refresh_tokens (
-        user_id, token_hash, expires_at, device_info, ip_address, user_agent
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING *
-    `;
-
-    const values = [
-      user_id,
-      token_hash,
-      expires_at,
-      device_info ? JSON.stringify(device_info) : null,
-      ip_address,
-      user_agent
-    ];
-
-    const result = await db.query(query, values);
-    return result.rows[0];
+    return await prisma.refreshToken.create({
+      data: {
+        userId,
+        tokenHash,
+        expiresAt,
+        deviceInfo,
+        ipAddress,
+        userAgent
+      }
+    });
   }
 
   /**
    * Find refresh token by hashed token
    */
   static async findByToken(token: string): Promise<RefreshToken | null> {
-    const token_hash = await AuthService.hashRefreshToken(token);
+    const tokenHash = await AuthService.hashRefreshToken(token);
     
-    const query = `
-      SELECT * FROM refresh_tokens 
-      WHERE token_hash = $1 
-      AND expires_at > CURRENT_TIMESTAMP 
-      AND revoked = FALSE
-    `;
-
-    const result = await db.query(query, [token_hash]);
-    return result.rows[0] || null;
+    return await prisma.refreshToken.findFirst({
+      where: {
+        tokenHash,
+        expiresAt: {
+          gt: new Date()
+        },
+        revoked: false
+      }
+    });
   }
 
   /**
    * Find all active refresh tokens for a user
    */
   static async findByUserId(userId: string): Promise<RefreshToken[]> {
-    const query = `
-      SELECT * FROM refresh_tokens 
-      WHERE user_id = $1 
-      AND expires_at > CURRENT_TIMESTAMP 
-      AND revoked = FALSE
-      ORDER BY created_at DESC
-    `;
-
-    const result = await db.query(query, [userId]);
-    return result.rows;
+    return await prisma.refreshToken.findMany({
+      where: {
+        userId,
+        expiresAt: {
+          gt: new Date()
+        },
+        revoked: false
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
   }
 
   /**
    * Revoke a refresh token
    */
   static async revoke(token: string): Promise<boolean> {
-    const token_hash = await AuthService.hashRefreshToken(token);
+    const tokenHash = await AuthService.hashRefreshToken(token);
     
-    const query = `
-      UPDATE refresh_tokens 
-      SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP
-      WHERE token_hash = $1
-    `;
-
-    const result = await db.query(query, [token_hash]);
-    return result.rowCount > 0;
+    try {
+      await prisma.refreshToken.updateMany({
+        where: {
+          tokenHash
+        },
+        data: {
+          revoked: true,
+          revokedAt: new Date()
+        }
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
    * Revoke all refresh tokens for a user
    */
   static async revokeAllForUser(userId: string): Promise<number> {
-    const query = `
-      UPDATE refresh_tokens 
-      SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP
-      WHERE user_id = $1 AND revoked = FALSE
-    `;
-
-    const result = await db.query(query, [userId]);
-    return result.rowCount;
+    const result = await prisma.refreshToken.updateMany({
+      where: {
+        userId,
+        revoked: false
+      },
+      data: {
+        revoked: true,
+        revokedAt: new Date()
+      }
+    });
+    
+    return result.count;
   }
 
   /**
    * Clean up expired and revoked tokens
    */
   static async cleanup(): Promise<number> {
-    const query = `
-      DELETE FROM refresh_tokens 
-      WHERE expires_at < CURRENT_TIMESTAMP OR revoked = TRUE
-    `;
-
-    const result = await db.query(query);
-    return result.rowCount;
+    const result = await prisma.refreshToken.deleteMany({
+      where: {
+        OR: [
+          {
+            expiresAt: {
+              lt: new Date()
+            }
+          },
+          {
+            revoked: true
+          }
+        ]
+      }
+    });
+    
+    return result.count;
   }
 
   /**
@@ -144,52 +144,47 @@ export class RefreshTokenModel {
     oldToken: string,
     newTokenData: CreateRefreshTokenData
   ): Promise<RefreshToken | null> {
-    // Use transaction to ensure atomicity
-    return await db.transaction(async (client) => {
+    // Use Prisma transaction to ensure atomicity
+    return await prisma.$transaction(async (tx) => {
       // First, verify and revoke the old token
       const oldTokenHash = await AuthService.hashRefreshToken(oldToken);
       
-      const oldTokenQuery = `
-        SELECT * FROM refresh_tokens 
-        WHERE token_hash = $1 
-        AND expires_at > CURRENT_TIMESTAMP 
-        AND revoked = FALSE
-      `;
-
-      const oldTokenResult = await client.query(oldTokenQuery, [oldTokenHash]);
-      const oldRefreshToken = oldTokenResult.rows[0];
+      const oldRefreshToken = await tx.refreshToken.findFirst({
+        where: {
+          tokenHash: oldTokenHash,
+          expiresAt: {
+            gt: new Date()
+          },
+          revoked: false
+        }
+      });
 
       if (!oldRefreshToken) {
         throw new Error('Invalid or expired refresh token');
       }
 
       // Revoke the old token
-      await client.query(
-        'UPDATE refresh_tokens SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP WHERE id = $1',
-        [oldRefreshToken.id]
-      );
+      await tx.refreshToken.update({
+        where: { id: oldRefreshToken.id },
+        data: {
+          revoked: true,
+          revokedAt: new Date()
+        }
+      });
 
       // Create the new token
       const newTokenHash = await AuthService.hashRefreshToken(newTokenData.token);
       
-      const newTokenQuery = `
-        INSERT INTO refresh_tokens (
-          user_id, token_hash, expires_at, device_info, ip_address, user_agent
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING *
-      `;
-
-      const newTokenValues = [
-        newTokenData.user_id,
-        newTokenHash,
-        newTokenData.expires_at,
-        newTokenData.device_info ? JSON.stringify(newTokenData.device_info) : null,
-        newTokenData.ip_address,
-        newTokenData.user_agent
-      ];
-
-      const newTokenResult = await client.query(newTokenQuery, newTokenValues);
-      return newTokenResult.rows[0];
+      return await tx.refreshToken.create({
+        data: {
+          userId: newTokenData.userId,
+          tokenHash: newTokenHash,
+          expiresAt: newTokenData.expiresAt,
+          deviceInfo: newTokenData.deviceInfo,
+          ipAddress: newTokenData.ipAddress,
+          userAgent: newTokenData.userAgent
+        }
+      });
     });
   }
 
@@ -197,26 +192,42 @@ export class RefreshTokenModel {
    * Get refresh token statistics for a user
    */
   static async getUserTokenStats(userId: string): Promise<{
-    active_tokens: number;
-    total_tokens: number;
-    last_activity: Date | null;
+    activeTokens: number;
+    totalTokens: number;
+    lastActivity: Date | null;
   }> {
-    const query = `
-      SELECT 
-        COUNT(*) FILTER (WHERE expires_at > CURRENT_TIMESTAMP AND revoked = FALSE) as active_tokens,
-        COUNT(*) as total_tokens,
-        MAX(created_at) as last_activity
-      FROM refresh_tokens 
-      WHERE user_id = $1
-    `;
-
-    const result = await db.query(query, [userId]);
-    const stats = result.rows[0];
+    const [activeTokens, totalTokens, lastActivity] = await Promise.all([
+      prisma.refreshToken.count({
+        where: {
+          userId,
+          expiresAt: {
+            gt: new Date()
+          },
+          revoked: false
+        }
+      }),
+      prisma.refreshToken.count({
+        where: {
+          userId
+        }
+      }),
+      prisma.refreshToken.findFirst({
+        where: {
+          userId
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        select: {
+          createdAt: true
+        }
+      })
+    ]);
 
     return {
-      active_tokens: parseInt(stats.active_tokens),
-      total_tokens: parseInt(stats.total_tokens),
-      last_activity: stats.last_activity
+      activeTokens,
+      totalTokens,
+      lastActivity: lastActivity?.createdAt || null
     };
   }
 
@@ -225,32 +236,41 @@ export class RefreshTokenModel {
    */
   static async getUserSessions(userId: string): Promise<Array<{
     id: string;
-    device_info: any;
-    ip_address: string;
-    user_agent: string;
-    created_at: Date;
-    last_used: Date;
-    is_current?: boolean;
+    deviceInfo: any;
+    ipAddress: string | null;
+    userAgent: string | null;
+    createdAt: Date;
+    lastUsed: Date;
+    isCurrent?: boolean;
   }>> {
-    const query = `
-      SELECT 
-        id,
-        device_info,
-        ip_address,
-        user_agent,
-        created_at,
-        updated_at as last_used
-      FROM refresh_tokens 
-      WHERE user_id = $1 
-      AND expires_at > CURRENT_TIMESTAMP 
-      AND revoked = FALSE
-      ORDER BY updated_at DESC
-    `;
+    const sessions = await prisma.refreshToken.findMany({
+      where: {
+        userId,
+        expiresAt: {
+          gt: new Date()
+        },
+        revoked: false
+      },
+      select: {
+        id: true,
+        deviceInfo: true,
+        ipAddress: true,
+        userAgent: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    });
 
-    const result = await db.query(query, [userId]);
-    return result.rows.map(row => ({
-      ...row,
-      device_info: row.device_info ? JSON.parse(row.device_info) : null
+    return sessions.map(session => ({
+      id: session.id,
+      deviceInfo: session.deviceInfo,
+      ipAddress: session.ipAddress,
+      userAgent: session.userAgent,
+      createdAt: session.createdAt,
+      lastUsed: session.updatedAt
     }));
   }
 }

@@ -39,7 +39,7 @@ router.post('/forgot', passwordResetLimiter, async (req: Request, res: Response)
     }
 
     // Don't allow password reset for OAuth users
-    if (user.provider !== 'local') {
+    if (user.provider !== 'LOCAL') {
       logSecurityEvent('password_reset_attempt_oauth_user', {
         userId: user.id,
         email: user.email,
@@ -130,7 +130,7 @@ router.post('/reset', async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
-        email_verified: user.email_verified
+        email_verified: user.emailVerified
       }
     });
 
@@ -184,14 +184,14 @@ router.put('/change', authenticateToken, async (req: Request, res: Response) => 
     }
 
     // Don't allow password change for OAuth users
-    if (user.provider !== 'local') {
+    if (user.provider !== 'LOCAL') {
       return res.status(403).json({
         error: 'Operation not allowed',
         message: 'Password change is not available for social login accounts'
       });
     }
 
-    if (!user.password_hash) {
+    if (!user.passwordHash) {
       return res.status(400).json({
         error: 'No password set',
         message: 'This account does not have a password set'
@@ -199,7 +199,7 @@ router.put('/change', authenticateToken, async (req: Request, res: Response) => 
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await AuthService.verifyPassword(currentPassword, user.password_hash);
+    const isCurrentPasswordValid = await AuthService.verifyPassword(currentPassword, user.passwordHash);
     
     if (!isCurrentPasswordValid) {
       logSecurityEvent('password_change_invalid_current', {
@@ -224,7 +224,7 @@ router.put('/change', authenticateToken, async (req: Request, res: Response) => 
     }
 
     // Check if new password is different from current
-    const isSamePassword = await AuthService.verifyPassword(newPassword, user.password_hash);
+    const isSamePassword = await AuthService.verifyPassword(newPassword, user.passwordHash);
     if (isSamePassword) {
       return res.status(400).json({
         error: 'Same password',
@@ -235,16 +235,12 @@ router.put('/change', authenticateToken, async (req: Request, res: Response) => 
     // Hash new password and update
     const newPasswordHash = await AuthService.hashPassword(newPassword);
     
-    await UserModel.update(user.id, {
-      // We can't use password_hash here directly as it's not in UpdateUserData
-      // We need to modify this or create a separate method
+    // Update password using Prisma
+    const { prisma } = require('../lib/prisma');
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: newPasswordHash }
     });
-
-    // For now, let's use a direct query
-    await require('../database/connection').db.query(
-      'UPDATE users SET password_hash = $1 WHERE id = $2',
-      [newPasswordHash, user.id]
-    );
 
     // Log successful password change
     logSecurityEvent('password_change_successful', {

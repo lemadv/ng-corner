@@ -9,7 +9,18 @@
       "Bash(cp:*)",
       "Bash(rm:*)",
       "Bash(docker-compose:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(docker compose:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(timeout 30 docker compose logs -f backend)",
+      "Bash(npx nx build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 60 docker compose logs -f backend)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name init --create-only)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate reset --force)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name init)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name add_user_timezone)",
+      "Bash(timeout 30 docker compose logs -f backend --tail 20)"
     ],
     "deny": []
   }
