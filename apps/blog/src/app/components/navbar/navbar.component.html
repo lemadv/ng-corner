@@ -33,29 +33,44 @@
                class="navbar-item" 
                routerLinkActive="active"
                aria-label="Navigate to author dashboard">
-              <mat-icon>dashboard</mat-icon>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+              </svg>
               Dashboard
             </a>
           </li>
         }
-        <li>
-          <button mat-button [matMenuTriggerFor]="userMenu" class="navbar-item user-menu-trigger">
-            <mat-icon>account_circle</mat-icon>
+        <li class="user-menu-container">
+          <button 
+            class="navbar-item user-menu-trigger" 
+            (click)="toggleUserMenu()"
+            [attr.aria-expanded]="isUserMenuOpen()"
+            aria-label="User menu">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
             {{ authService.currentUser()?.firstName || 'Account' }}
-            <mat-icon>arrow_drop_down</mat-icon>
+            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
           </button>
-          <mat-menu #userMenu="matMenu">
-            <div class="user-info">
-              <p class="user-name">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
-              <p class="user-email">{{ authService.currentUser()?.email }}</p>
-              <p class="user-role">{{ authService.currentUser()?.role }}</p>
+          
+          @if (isUserMenuOpen()) {
+            <div class="user-menu" (click)="closeUserMenu()">
+              <div class="user-info">
+                <p class="user-name">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
+                <p class="user-email">{{ authService.currentUser()?.email }}</p>
+                <p class="user-role">{{ authService.currentUser()?.role }}</p>
+              </div>
+              <div class="menu-divider"></div>
+              <button class="menu-item logout-item" (click)="logout()">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+                <span>Logout</span>
+              </button>
             </div>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="logout()">
-              <mat-icon>logout</mat-icon>
-              <span>Logout</span>
-            </button>
-          </mat-menu>
+          }
         </li>
       } @else {
         <li>
@@ -63,7 +78,9 @@
              class="navbar-item login-button" 
              routerLinkActive="active"
              aria-label="Login to your account">
-            <mat-icon>login</mat-icon>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/>
+            </svg>
             Login
           </a>
         </li>
