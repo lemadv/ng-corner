@@ -246,39 +246,106 @@ npx nx graph
 
 ## Docker Development
 
+Both frontend and backend run in Docker containers for consistent development environments.
+
+### Available Docker Configurations
+
+1. **Development Mode** (`docker-compose.dev.yml`): Fresh dependencies, hot reload, volume mounting
+2. **Production Mode** (`docker-compose.yml`): Optimized builds, production configurations
+
 ### Start Development Environment
 ```bash
-# Start both frontend and backend with hot reload
-docker-compose up
+# Start development environment (default)
+docker-compose -f docker-compose.dev.yml up
 
 # Start in detached mode
-docker-compose up -d
+docker-compose -f docker-compose.dev.yml up -d
+
+# Start production environment
+docker-compose -f docker-compose.yml up
 
 # Stop services
-docker-compose down
+docker-compose -f docker-compose.dev.yml down
+```
+
+### Fresh Install (Recommended for Dependency Changes)
+Use these commands for a completely fresh environment:
+
+```bash
+# Development mode (default)
+# Windows
+docker-fresh.bat
+
+# Linux/Mac
+./docker-fresh.sh
+
+# Production mode
+# Windows
+docker-fresh.bat prod
+
+# Linux/Mac
+./docker-fresh.sh prod
+```
+
+### Package Management in Docker
+**IMPORTANT**: Always install packages inside Docker containers, not on your host OS:
+
+```bash
+# Install backend packages
+# Windows
+docker-exec.bat backend "npm install express"
+
+# Linux/Mac
+./docker-exec.sh backend "npm install express"
+
+# Install frontend packages
+# Windows
+docker-exec.bat frontend "npm install @angular/material"
+
+# Linux/Mac
+./docker-exec.sh frontend "npm install @angular/material"
+
+# Open interactive shell in container
+# Windows
+docker-exec.bat backend
+docker-exec.bat frontend
+
+# Linux/Mac
+./docker-exec.sh backend
+./docker-exec.sh frontend
 ```
 
 ### Access Applications
-- **Frontend**: http://localhost:4200
-- **Backend API**: http://localhost:3333/api
+- **Frontend**: http://localhost:4200 (Angular SSR)
+- **Backend API**: http://localhost:3333/api (Express.js)
 - **PostgreSQL**: localhost:5432 (blog_db/blog_user/blog_password)
 
 ### Docker Features
+- **Containerized Development**: Both frontend and backend run in isolated containers
+- **Fresh Dependencies**: `node_modules` reinstalled from scratch every startup in dev mode
+- **No Dependency Conflicts**: Eliminates issues with shared node_modules between FE/BE
 - **Hot Reload**: Changes in source code automatically trigger recompilation
 - **Volume Mounting**: Source code is mounted for real-time development
-- **Nx Cache Isolation**: `.nx` directory is excluded to prevent Windows cache conflicts
+- **NPM Cache**: Cached in Docker volume for faster subsequent installs
 - **Node 22 Alpine**: Clean environment with latest Node.js
-- **Proxy Configuration**: Frontend automatically proxies `/api/*` requests to backend (no CORS issues)
+- **Network Isolation**: Services communicate through Docker network
 - **PostgreSQL Service**: Includes health checks and automatic database initialization
+
+### Important Notes
+- **Package Installation**: Always install packages inside Docker containers using docker-exec scripts
+- **First Startup**: Takes 3-5 minutes to install all dependencies
+- **Subsequent Startups**: Also reinstall fresh in dev mode (2-3 minutes with cache)
+- **No Volume Conflicts**: Each container starts with clean node_modules
+- **Dependency Changes**: Automatically picked up on next startup in dev mode
 
 ### Rebuild Services
 ```bash
 # Rebuild specific service
-docker-compose build frontend
-docker-compose build backend
+docker-compose -f docker-compose.dev.yml build frontend
+docker-compose -f docker-compose.dev.yml build backend
 
 # Rebuild and restart
-docker-compose up --build
+docker-compose -f docker-compose.dev.yml up --build
 ```
 
 ## Database Management

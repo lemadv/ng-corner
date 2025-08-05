@@ -12,6 +12,7 @@ declare global {
         email: string;
         email_verified: boolean;
         provider: string;
+        role: string;
       };
       tokenPayload?: any;
     }
@@ -66,7 +67,8 @@ export const authenticateToken = async (
       id: user.id,
       email: user.email,
       email_verified: user.emailVerified,
-      provider: user.provider
+      provider: user.provider,
+      role: user.role
     };
     req.tokenPayload = decoded;
 
@@ -114,7 +116,8 @@ export const optionalAuth = async (
           id: user.id,
           email: user.email,
           email_verified: user.emailVerified,
-          provider: user.provider
+          provider: user.provider,
+          role: user.role
         };
         req.tokenPayload = decoded;
       }
@@ -193,7 +196,8 @@ export const authenticateRefreshToken = async (
       id: user.id,
       email: user.email,
       email_verified: user.emailVerified,
-      provider: user.provider
+      provider: user.provider,
+      role: user.role
     };
     req.tokenPayload = decoded;
 
@@ -216,9 +220,9 @@ export const authenticateRefreshToken = async (
 };
 
 /**
- * Role-based access control (for future expansion)
+ * Legacy role-based access control (deprecated - use requireRole below)
  */
-export const requireRole = (roles: string[]) => {
+export const requireRoleLegacy = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     // This can be expanded when user roles are implemented
     // For now, all authenticated users have the same permissions
@@ -262,3 +266,47 @@ export const requireOwnership = (
 
   next();
 };
+
+/**
+ * Role-based access control middleware
+ * Requires specific roles to access the endpoint
+ */
+export const requireRole = (allowedRoles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({
+          error: 'Authentication required',
+          message: 'You must be logged in to access this resource'
+        });
+        return;
+      }
+
+      if (!allowedRoles.includes(req.user.role)) {
+        res.status(403).json({
+          error: 'Access denied',
+          message: `This resource requires one of the following roles: ${allowedRoles.join(', ')}`
+        });
+        return;
+      }
+
+      next();
+    } catch (error) {
+      console.error('Role check error:', error);
+      res.status(500).json({
+        error: 'Authorization error',
+        message: 'An error occurred while checking permissions'
+      });
+    }
+  };
+};
+
+/**
+ * Author-only access middleware (shorthand for requireRole(['AUTHOR', 'ADMIN']))
+ */
+export const requireAuthor = requireRole(['AUTHOR', 'ADMIN']);
+
+/**
+ * Admin-only access middleware
+ */
+export const requireAdmin = requireRole(['ADMIN']);

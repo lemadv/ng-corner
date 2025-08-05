@@ -20,7 +20,21 @@
       "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate reset --force)",
       "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name init)",
       "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name add_user_timezone)",
-      "Bash(timeout 30 docker compose logs -f backend --tail 20)"
+      "Bash(timeout 30 docker compose logs -f backend --tail 20)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name add_user_roles --schema=./apps/blog-be/prisma/schema.prisma)",
+      "Bash(npx nx g:*)",
+      "Bash(NX_CLOUD_DISTRIBUTED_EXECUTION=false npx nx build blog-be)",
+      "Bash(touch:*)",
+      "Bash(npx nx run:*)",
+      "Bash(timeout 30 npx nx run:*)",
+      "Bash(timeout:*)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" timeout 30 npx nx run blog-be:serve:development --host 0.0.0.0)",
+      "Bash(docker exec:*)",
+      "Bash(npx nx serve:*)",
+      "Bash(docker:*)",
+      "Bash(npm ls:*)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate dev --name init --schema=./apps/blog-be/prisma/schema.prisma)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

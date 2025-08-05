@@ -5,6 +5,23 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/blog-be",
+        "main": "apps/blog-be/src/main.ts",
+        "tsConfig": "apps/blog-be/tsconfig.app.json",
+        "assets": [
+          "apps/blog-be/src/assets",
+          {
+            "input": "apps/blog-be/prisma",
+            "glob": "**/*",
+            "output": "prisma"
+          }
+        ]
+      }
+    },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",
@@ -30,6 +47,9 @@
         "jestConfig": "apps/blog-be/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
     }
   }
 }

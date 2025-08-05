@@ -1,80 +1,63 @@
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "4200:4200"
-    volumes:
-      - .:/app:cached
-      - /app/node_modules
-      - type: volume
-        target: /app/dist
-      - type: volume
-        target: /app/.nx
+  postgres:
+    image: postgres:16-alpine
+    container_name: ng-corner-postgres
     environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-    depends_on:
-      - backend
-    networks:
-      - blog-network
+      POSTGRES_USER: blog_user
+      POSTGRES_PASSWORD: blog_password
+      POSTGRES_DB: blog_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blog_user -d blog_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
-    ports:
-      - "3333:3333"
-    volumes:
-      - type: bind
-        source: .
-        target: /app
-        consistency: cached
-      - type: volume
-        target: /app/node_modules
-      - type: volume
-        target: /app/dist
-      - type: volume
-        target: /app/.nx
+    image: node:22-alpine
+    container_name: ng-corner-backend
+    working_dir: /app
     environment:
       - NODE_ENV=development
-      - PORT=3333
-      - CHOKIDAR_USEPOLLING=true
       - DATABASE_URL=postgresql://blog_user:blog_password@postgres:5432/blog_db
-      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-this-in-production
+      - JWT_SECRET=dev-jwt-secret-key
+      - JWT_EXPIRES_IN=1h
+      - REFRESH_TOKEN_SECRET=dev-refresh-token-secret-key
+      - REFRESH_TOKEN_EXPIRES_IN=7d
+    ports:
+      - "3333:3333"
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - blog-network
-
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: blog_db
-      POSTGRES_USER: blog_user
-      POSTGRES_PASSWORD: blog_password
-      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./apps/backend/src/database/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U blog_user -d blog_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - blog-network
+      - .:/app
+      - /app/node_modules
+      - npm_cache:/root/.npm
+    command: sh -c "apk add --no-cache netcat-openbsd && npm ci && echo 'Waiting for postgres...' && while ! nc -z postgres 5432; do sleep 1; done && echo 'PostgreSQL is ready!' && npx prisma generate --schema=./apps/blog-be/prisma/schema.prisma && npx prisma migrate dev --schema=./apps/blog-be/prisma/schema.prisma --name init && DATABASE_URL='postgresql://blog_user:blog_password@postgres:5432/blog_db' npx nx serve blog-be --host 0.0.0.0"
 
-networks:
-  blog-network:
-    driver: bridge
+  frontend:
+    image: node:22-alpine
+    container_name: ng-corner-frontend
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - npm_cache:/root/.npm
+    command: sh -c "npm ci && npx nx serve blog --configuration=development --host 0.0.0.0"
 
 volumes:
   postgres_data:
+  npm_cache:
+
+networks:
+  default:
+    name: ng-corner-network

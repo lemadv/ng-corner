@@ -34,12 +34,19 @@ const MIN_PASSWORD_LENGTH = 8;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
 
 export class AuthService {
-  private static jwtSecret = process.env.JWT_SECRET;
-  private static refreshSecret = process.env.JWT_REFRESH_SECRET;
+  private static jwtSecret = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
+  private static refreshSecret = process.env.JWT_REFRESH_SECRET || 'your-super-secret-refresh-key-change-this-in-production';
 
   static {
     if (!AuthService.jwtSecret || !AuthService.refreshSecret) {
       throw new Error('JWT secrets must be set in environment variables');
+    }
+    
+    // Warn about using default secrets in development
+    if (process.env.NODE_ENV !== 'production' && 
+        (AuthService.jwtSecret === 'your-super-secret-jwt-key-change-this-in-production' ||
+         AuthService.refreshSecret === 'your-super-secret-refresh-key-change-this-in-production')) {
+      console.warn('⚠️  Using default JWT secrets in development mode. Change these in production!');
     }
   }
 

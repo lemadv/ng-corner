@@ -1,0 +1,168 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 140px); // Account for navbar and footer
+  padding: 2rem;
+  background: linear-gradient(135deg, oklch(96% 0.01 300) 0%, oklch(98% 0.005 320) 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px oklch(0% 0 0 / 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  
+  mat-card-header {
+    background: linear-gradient(135deg, oklch(60% 0.15 280) 0%, oklch(55% 0.12 260) 100%);
+    color: oklch(98% 0.01 280);
+    padding: 2rem;
+    text-align: center;
+    
+    mat-card-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    mat-card-subtitle {
+      color: oklch(90% 0.05 280);
+      font-size: 0.95rem;
+    }
+  }
+  
+  mat-card-content {
+    padding: 2rem;
+  }
+  
+  mat-card-actions {
+    padding: 0 2rem 2rem;
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: oklch(95% 0.05 20);
+  color: oklch(45% 0.15 20);
+  border-radius: 8px;
+  border-left: 4px solid oklch(55% 0.18 20);
+  font-size: 0.875rem;
+  
+  mat-icon {
+    font-size: 1.125rem;
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.form-options {
+  margin-bottom: 1.5rem;
+  
+  mat-checkbox {
+    font-size: 0.875rem;
+    
+    ::ng-deep .mat-mdc-checkbox-label {
+      color: oklch(40% 0.05 280);
+    }
+  }
+}
+
+.form-actions {
+  text-align: center;
+}
+
+.login-button {
+  width: 100%;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background: linear-gradient(135deg, oklch(60% 0.15 280) 0%, oklch(55% 0.12 260) 100%);
+  color: oklch(98% 0.01 280);
+  
+  &:disabled {
+    background: oklch(80% 0.02 280);
+    color: oklch(60% 0.03 280);
+  }
+  
+  mat-spinner {
+    margin-right: 0.5rem;
+  }
+}
+
+.card-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid oklch(90% 0.02 280);
+  
+  p {
+    margin: 0;
+    color: oklch(50% 0.05 280);
+    font-size: 0.875rem;
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1rem;
+    min-height: calc(100vh - 120px);
+  }
+  
+  .login-card {
+    mat-card-header {
+      padding: 1.5rem;
+      
+      mat-card-title {
+        font-size: 1.5rem;
+      }
+    }
+    
+    mat-card-content,
+    mat-card-actions {
+      padding: 1.5rem;
+    }
+  }
+}
+
+// Focus states
+.mat-mdc-form-field {
+  &.mat-focused {
+    .mat-mdc-form-field-outline-thick {
+      color: oklch(60% 0.15 280);
+    }
+  }
+}
+
+// Input field styling
+::ng-deep {
+  .mat-mdc-form-field-outline-start,
+  .mat-mdc-form-field-outline-end,
+  .mat-mdc-form-field-outline-gap {
+    border-color: oklch(85% 0.02 280);
+  }
+  
+  .mat-mdc-form-field-outline-thick {
+    .mat-mdc-form-field-outline-start,
+    .mat-mdc-form-field-outline-end,
+    .mat-mdc-form-field-outline-gap {
+      border-width: 2px;
+    }
+  }
+  
+  .mat-mdc-form-field-label {
+    color: oklch(50% 0.05 280);
+  }
+  
+  .mat-mdc-form-field-required-marker {
+    color: oklch(55% 0.18 20);
+  }
+}

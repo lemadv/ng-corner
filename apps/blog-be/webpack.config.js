@@ -1,27 +1,6 @@
-const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
+const { composePlugins, withNx } = require('@nx/webpack');
 
-module.exports = {
-  output: {
-    path: join(__dirname, '../../dist/apps/blog-be'),
-  },
-  plugins: [
-    new NxAppWebpackPlugin({
-      target: 'node',
-      compiler: 'tsc',
-      main: './src/main.ts',
-      tsConfig: './tsconfig.app.json',
-      assets: [
-        './src/assets',
-        {
-          glob: 'database/**/*',
-          input: './src/',
-          output: '.',
-        },
-      ],
-      optimization: false,
-      outputHashing: 'none',
-      generatePackageJson: true,
-    }),
-  ],
-};
+// Nx plugins for webpack to build Node applications
+module.exports = composePlugins(withNx(), (config) => {
+  return config;
+});
