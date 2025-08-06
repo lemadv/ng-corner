@@ -1,8 +1,9 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { PostService, PostWithAuthor } from '../../services/post.service';
+import { AuthStore } from '../../store/auth.store';
+import { PostStore } from '../../store/post.store';
+import { PostWithAuthor } from '../../services/post.service';
 
 @Component({
   selector: 'app-author-dashboard',
@@ -11,7 +12,7 @@ import { PostService, PostWithAuthor } from '../../services/post.service';
       <div class="dashboard-header">
         <h1>Author Dashboard</h1>
         <p class="welcome-message">
-          Welcome back, {{ authService.currentUser()?.firstName || 'Author' }}! 
+          Welcome back, {{ authStore.currentUser()?.firstName || 'Author' }}! 
           Manage your blog posts and create new content.
         </p>
       </div>
@@ -248,15 +249,15 @@ import { PostService, PostWithAuthor } from '../../services/post.service';
                 <div class="profile-info">
                   <div class="profile-field">
                     <label>Email:</label>
-                    <span>{{ authService.currentUser()?.email }}</span>
+                    <span>{{ authStore.currentUser()?.email }}</span>
                   </div>
                   <div class="profile-field">
                     <label>Name:</label>
-                    <span>{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</span>
+                    <span>{{ authStore.currentUser()?.firstName }} {{ authStore.currentUser()?.lastName }}</span>
                   </div>
                   <div class="profile-field">
                     <label>Role:</label>
-                    <span class="role-badge">{{ authService.currentUser()?.role }}</span>
+                    <span class="role-badge">{{ authStore.currentUser()?.role }}</span>
                   </div>
                 </div>
                 <div class="card-actions">
@@ -281,40 +282,26 @@ import { PostService, PostWithAuthor } from '../../services/post.service';
   ]
 })
 export class AuthorDashboardComponent implements OnInit {
-  readonly authService = inject(AuthService);
-  private readonly postService = inject(PostService);
+  readonly authStore = inject(AuthStore);
+  readonly postStore = inject(PostStore);
   private readonly router = inject(Router);
-  
-  readonly posts = signal<PostWithAuthor[]>([]);
-  readonly isLoading = signal(false);
-  readonly error = signal<string | null>(null);
   readonly activeTab = signal(0);
   readonly openMenuId = signal<string | null>(null);
   
-  // Computed values
-  readonly totalPosts = computed(() => this.posts().length);
-  readonly publishedPosts = computed(() => this.posts().filter(p => p.published).length);
-  readonly draftPosts = computed(() => this.posts().filter(p => !p.published).length);
+  // Computed values from store
+  readonly posts = this.postStore.posts;
+  readonly isLoading = this.postStore.isLoading;
+  readonly error = this.postStore.error;
+  readonly totalPosts = this.postStore.totalPosts;
+  readonly publishedPosts = this.postStore.publishedPosts;
+  readonly draftPosts = this.postStore.draftPosts;
   
   ngOnInit(): void {
     this.loadPosts();
   }
   
   private loadPosts(): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-    
-    this.postService.getAuthorPosts({ page: 1, limit: 50, status: 'all' }).subscribe({
-      next: (response) => {
-        this.posts.set(response.posts);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load posts:', error);
-        this.error.set('Failed to load posts. Please try again.');
-        this.isLoading.set(false);
-      }
-    });
+    this.postStore.loadAuthorPosts({ page: 1, limit: 50, status: 'all' });
   }
   
   setActiveTab(index: number): void {
@@ -343,21 +330,7 @@ export class AuthorDashboardComponent implements OnInit {
   }
   
   togglePostStatus(postId: string, published: boolean): void {
-    this.postService.updatePostStatus(postId, published).subscribe({
-      next: (updatedPost) => {
-        // Update the post in the local array
-        const posts = this.posts();
-        const index = posts.findIndex(p => p.id === postId);
-        if (index !== -1) {
-          posts[index] = updatedPost;
-          this.posts.set([...posts]);
-        }
-      },
-      error: (error) => {
-        console.error('Failed to update post status:', error);
-        this.error.set('Failed to update post status. Please try again.');
-      }
-    });
+    this.postStore.updatePostStatus({ postId, published });
   }
   
   duplicatePost(postId: string): void {
@@ -367,17 +340,7 @@ export class AuthorDashboardComponent implements OnInit {
   
   deletePost(postId: string): void {
     if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-      this.postService.deletePost(postId).subscribe({
-        next: () => {
-          // Remove post from local array
-          const posts = this.posts().filter(p => p.id !== postId);
-          this.posts.set(posts);
-        },
-        error: (error) => {
-          console.error('Failed to delete post:', error);
-          this.error.set('Failed to delete post. Please try again.');
-        }
-      });
+      this.postStore.deletePost(postId);
     }
   }
 }

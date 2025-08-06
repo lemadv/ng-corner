@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthStore } from '../../store/auth.store';
 
 @Component({
   selector: 'app-navbar',
@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavbarComponent {
-  readonly authService = inject(AuthService);
+  readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   readonly isUserMenuOpen = signal(false);
 
@@ -24,18 +24,8 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        console.log('Logged out successfully');
-        this.closeUserMenu();
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        console.error('Logout failed:', error);
-        // Even if logout fails, navigate home
-        this.closeUserMenu();
-        this.router.navigate(['/']);
-      }
-    });
+    this.authStore.logout();
+    this.closeUserMenu();
+    this.router.navigate(['/']);
   }
 }

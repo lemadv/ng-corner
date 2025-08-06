@@ -1,15 +1,15 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CanActivateFn } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthStore } from '../store/auth.store';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
+  if (authStore.isAuthenticated()) {
     // Check if user has author role for author routes
-    if (state.url.startsWith('/author') && !authService.isAuthor()) {
+    if (state.url.startsWith('/author') && !authStore.isAuthor()) {
       // Redirect non-authors to home page
       router.navigate(['/']);
       return false;

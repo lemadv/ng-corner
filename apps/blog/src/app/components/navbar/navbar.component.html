@@ -26,8 +26,8 @@
         </a>
       </li>
       
-      @if (authService.isAuthenticated()) {
-        @if (authService.isAuthor()) {
+      @if (authStore.isAuthenticated()) {
+        @if (authStore.isAuthor()) {
           <li>
             <a routerLink="/author/dashboard" 
                class="navbar-item" 
@@ -49,7 +49,7 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
             </svg>
-            {{ authService.currentUser()?.firstName || 'Account' }}
+            {{ authStore.currentUser()?.firstName || 'Account' }}
             <svg class="dropdown-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M7 10l5 5 5-5z"/>
             </svg>
@@ -58,9 +58,9 @@
           @if (isUserMenuOpen()) {
             <div class="user-menu" (click)="closeUserMenu()">
               <div class="user-info">
-                <p class="user-name">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
-                <p class="user-email">{{ authService.currentUser()?.email }}</p>
-                <p class="user-role">{{ authService.currentUser()?.role }}</p>
+                <p class="user-name">{{ authStore.currentUser()?.firstName }} {{ authStore.currentUser()?.lastName }}</p>
+                <p class="user-email">{{ authStore.currentUser()?.email }}</p>
+                <p class="user-role">{{ authStore.currentUser()?.role }}</p>
               </div>
               <div class="menu-divider"></div>
               <button class="menu-item logout-item" (click)="logout()">

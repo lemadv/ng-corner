@@ -16,6 +16,7 @@
     "@angular/platform-server": "^20.1.4",
     "@angular/router": "^20.1.4",
     "@angular/ssr": "^20.1.4",
+    "@ngrx/operators": "^20.0.0",
     "@ngrx/signals": "^20.0.0-rc.0",
     "@prisma/client": "^6.1.0",
     "@types/prismjs": "^1.26.5",

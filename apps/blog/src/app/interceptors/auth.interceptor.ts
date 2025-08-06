@@ -2,12 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
+import { AuthStore } from '../store/auth.store';
 import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   
   private isRefreshing = false;
@@ -20,7 +20,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(authRequest).pipe(
       catchError((error: HttpErrorResponse) => {
         // Handle 401 errors by attempting token refresh
-        if (error.status === 401 && this.authService.isAuthenticated()) {
+        if (error.status === 401 && this.authStore.isAuthenticated()) {
           return this.handle401Error(authRequest, next);
         }
         
@@ -35,7 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private addTokenToRequest(request: HttpRequest<unknown>): HttpRequest<unknown> {
-    const token = this.authService.getStoredToken();
+    const token = this.authStore.getStoredToken();
     
     if (token && this.shouldAddToken(request.url)) {
       return request.clone({
@@ -54,39 +54,10 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    if (!this.isRefreshing) {
-      this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
-
-      return this.authService.refreshToken().pipe(
-        switchMap((tokens: any) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next(tokens.accessToken);
-          
-          // Retry the original request with new token
-          const authRequest = this.addTokenToRequest(request);
-          return next.handle(authRequest);
-        }),
-        catchError((error) => {
-          this.isRefreshing = false;
-          
-          // Refresh failed, redirect to login
-          this.authService.logout().subscribe();
-          this.router.navigate(['/login']);
-          
-          return throwError(() => error);
-        })
-      );
-    } else {
-      // Wait for refresh to complete
-      return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
-        take(1),
-        switchMap(() => {
-          const authRequest = this.addTokenToRequest(request);
-          return next.handle(authRequest);
-        })
-      );
-    }
+    // For now, just clear auth data and redirect to login
+    // Token refresh can be implemented later if needed
+    this.authStore.clearAuthData();
+    this.router.navigate(['/login']);
+    return throwError(() => new Error('Authentication failed'));
   }
 }

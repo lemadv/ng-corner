@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MarkdownModule } from 'ngx-markdown';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { PostService, CreatePostRequest, UpdatePostRequest, PostWithAuthor, Tag } from '../../services/post.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthStore } from '../../store/auth.store';
 
 interface EditorTab {
   label: string;
@@ -51,7 +51,7 @@ interface EditorTab {
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly postService = inject(PostService);
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);

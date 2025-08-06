@@ -10,15 +10,15 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideMarkdown } from 'ngx-markdown';
 import { appRoutes } from './app.routes';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { AuthService } from './services/auth.service';
+import { AuthStore } from './store/auth.store';
 
 /**
  * Factory function for APP_INITIALIZER to initialize authentication
  */
 function initializeAuthFactory(): () => Promise<void> {
   return () => {
-    const authService = inject(AuthService);
-    return authService.initializeAuth();
+    const authStore = inject(AuthStore);
+    return authStore.initializeAuth();
   };
 }
 
