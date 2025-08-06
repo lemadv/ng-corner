@@ -154,6 +154,14 @@
     margin: 0;
     color: var(--primary-300);
     font-size: 0.875rem;
+    
+    &.disclaimer {
+      font-size: 0.75rem;
+      color: var(--primary-400);
+      margin-top: var(--space-xs);
+      max-width: 600px;
+      line-height: 1.5;
+    }
   }
 }
 
@@ -199,6 +207,11 @@
     flex-direction: column;
     text-align: center;
     gap: var(--space-sm);
+  }
+
+  .copyright .disclaimer {
+    max-width: none;
+    text-align: center;
   }
 
   .footer-logo {

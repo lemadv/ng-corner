@@ -14,7 +14,7 @@ export class NavbarComponent {
   readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   readonly isUserMenuOpen = signal(false);
-
+  readonly isMobileMenuOpen = signal(false);
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.set(!this.isUserMenuOpen());
@@ -24,9 +24,26 @@ export class NavbarComponent {
     this.isUserMenuOpen.set(false);
   }
 
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
+    // Close user menu when opening mobile menu
+    if (this.isMobileMenuOpen()) {
+      this.closeUserMenu();
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
+  }
+
+  closeAllMenus(): void {
+    this.closeUserMenu();
+    this.closeMobileMenu();
+  }
+
   logout(): void {
     this.authStore.logout();
-    this.closeUserMenu();
+    this.closeAllMenus();
     this.router.navigate(['/']);
   }
 }

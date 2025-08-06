@@ -35,9 +35,9 @@ const DEFAULT_TAGS: DefaultTag[] = [
     color: '#dd0031' 
   },
   { 
-    name: 'Performance Optimization', 
-    slug: 'performance-optimization', 
-    description: 'Production performance tuning and optimization techniques', 
+    name: 'Performance Examples', 
+    slug: 'performance-examples', 
+    description: 'Performance optimization examples and techniques', 
     color: '#3178c6' 
   },
   { 
@@ -65,9 +65,9 @@ const DEFAULT_TAGS: DefaultTag[] = [
     color: '#ff9800' 
   },
   { 
-    name: 'Testing Strategies', 
-    slug: 'testing-strategies', 
-    description: 'Production-ready testing approaches and automation', 
+    name: 'Testing Examples', 
+    slug: 'testing-examples', 
+    description: 'Professional testing approaches and automation examples', 
     color: '#2196f3' 
   },
   { 
