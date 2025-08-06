@@ -64,6 +64,48 @@ router.get('/:slug', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /posts/edit/:id
+ * Get a single post by ID for editing (author-only endpoint)
+ */
+router.get('/edit/:id', authenticateToken, requireRole(['AUTHOR', 'ADMIN']), async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        message: 'User not authenticated'
+      });
+    }
+
+    const post = await PostService.getPostById(id);
+    
+    if (!post) {
+      return res.status(404).json({
+        error: 'Post not found',
+        message: 'The requested post could not be found'
+      });
+    }
+
+    // Check if the user is the author of the post (unless they're an admin)
+    if (req.user.role !== 'ADMIN' && post.authorId !== req.user.id) {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'You can only edit your own posts'
+      });
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error('Get post for editing error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch post',
+      message: 'An error occurred while fetching the post for editing'
+    });
+  }
+});
+
+/**
  * GET /posts/author/my-posts
  * Get author's own posts (author-only endpoint)
  */

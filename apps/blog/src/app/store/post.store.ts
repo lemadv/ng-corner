@@ -348,7 +348,7 @@ export const PostStore = signalStore(
             patchState(store, { isLoading: true, error: null });
           }),
           switchMap(({ postId }) =>
-            http.get<PostWithAuthor>(`${baseUrl}/${postId}`).pipe(
+            http.get<PostWithAuthor>(`${baseUrl}/edit/${postId}`).pipe(
               tapResponse({
                 next: (post) => {
                   patchState(store, {
