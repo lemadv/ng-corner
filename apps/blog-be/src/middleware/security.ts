@@ -251,7 +251,7 @@ export const getCorsOptions = () => {
         return callback(null, true);
       }
 
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      const msg = `The CORS policy for this site does not allow access from the specified Origin. ${origin}`;
       return callback(new Error(msg), false);
     },
     credentials: true, // Allow cookies
