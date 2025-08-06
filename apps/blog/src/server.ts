@@ -30,7 +30,7 @@ const angularApp = new AngularNodeAppEngine();
 app.use(
   '/api',
   createProxyMiddleware({
-    target: process.env['API_URL'],          //  https://ng-corner-1.onrender.com
+    target: process.env['API_URL'] || 'http://localhost:3333',          //  https://ng-corner-1.onrender.com
     changeOrigin: true,
     /*
      * Express removes the leading /api, and we want to keep it that way

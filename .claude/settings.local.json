@@ -39,7 +39,9 @@
       "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate deploy)",
       "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx prisma migrate status)",
       "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx ts-node prisma/seed.ts)",
-      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" node prisma/seed.js)"
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" node prisma/seed.js)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx ts-node --esm prisma/seed.ts)",
+      "Bash(DATABASE_URL=\"postgresql://blog_user:blog_password@localhost:5432/blog_db\" npx ts-node \"apps/blog-be/prisma/seed.ts\")"
     ],
     "deny": []
   }
