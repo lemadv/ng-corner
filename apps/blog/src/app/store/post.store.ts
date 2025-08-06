@@ -54,6 +54,7 @@ export interface PostsResponse {
 
 export interface CreatePostRequest {
   title: string;
+  slug: string;
   content: string;
   excerpt?: string;
   metaTitle?: string;
@@ -167,7 +168,7 @@ export const PostStore = signalStore(
               ...(params.status && params.status !== 'all' && { status: params.status }),
             });
 
-            return http.get<PostsResponse>(`${baseUrl}/author?${queryParams}`).pipe(
+            return http.get<PostsResponse>(`${baseUrl}/author/my-posts?${queryParams}`).pipe(
               tapResponse({
                 next: (response) => {
                   patchState(store, {
@@ -240,9 +241,10 @@ export const PostStore = signalStore(
       updatePostStatus: rxMethod<{ postId: string; published: boolean }>(
         pipe(
           switchMap(({ postId, published }) =>
-            http.patch<PostWithAuthor>(`${baseUrl}/${postId}/status`, { published }).pipe(
+            http.patch<{ message: string; post: PostWithAuthor }>(`${baseUrl}/${postId}/publish`, { published }).pipe(
               tapResponse({
-                next: (updatedPost) => {
+                next: (response: { message: string; post: PostWithAuthor }) => {
+                  const updatedPost = response.post;
                   const posts = store.posts();
                   const index = posts.findIndex(p => p.id === postId);
                   if (index !== -1) {
@@ -294,9 +296,10 @@ export const PostStore = signalStore(
             patchState(store, { isLoading: true, error: null });
           }),
           switchMap((postData) =>
-            http.post<PostWithAuthor>(`${baseUrl}`, postData).pipe(
+            http.post<{ message: string; post: PostWithAuthor }>(`${baseUrl}`, postData).pipe(
               tapResponse({
-                next: (newPost) => {
+                next: (response) => {
+                  const newPost = response.post;
                   const posts = [newPost, ...store.posts()];
                   patchState(store, {
                     posts,
@@ -331,6 +334,91 @@ export const PostStore = signalStore(
                 },
                 error: (error: HttpErrorResponse) => {
                   console.error('Failed to load tags:', error);
+                },
+              })
+            )
+          )
+        )
+      ),
+
+      // Load single post
+      loadPost: rxMethod<{ postId: string }>(
+        pipe(
+          tap(() => {
+            patchState(store, { isLoading: true, error: null });
+          }),
+          switchMap(({ postId }) =>
+            http.get<PostWithAuthor>(`${baseUrl}/${postId}`).pipe(
+              tapResponse({
+                next: (post) => {
+                  patchState(store, {
+                    currentPost: post,
+                    isLoading: false,
+                  });
+                },
+                error: (error: HttpErrorResponse) => {
+                  let errorMessage = 'Failed to load post';
+                  if (error.error?.message) {
+                    errorMessage = error.error.message;
+                  }
+                  patchState(store, {
+                    isLoading: false,
+                    error: errorMessage,
+                  });
+                },
+              })
+            )
+          )
+        )
+      ),
+
+      // Update post
+      updatePost: rxMethod<{
+        postId: string;
+        title: string;
+        slug: string;
+        content: string;
+        excerpt?: string | null;
+        metaTitle?: string | null;
+        metaDescription?: string | null;
+        published: boolean;
+      }>(
+        pipe(
+          tap(() => {
+            patchState(store, { isLoading: true, error: null });
+          }),
+          switchMap(({ postId, ...updateData }) =>
+            http.put<{ message: string; post: PostWithAuthor }>(`${baseUrl}/${postId}`, updateData).pipe(
+              tapResponse({
+                next: (response) => {
+                  const updatedPost = response.post;
+                  // Update the post in the posts array
+                  const posts = store.posts();
+                  const index = posts.findIndex(p => p.id === postId);
+                  if (index !== -1) {
+                    const updatedPosts = [...posts];
+                    updatedPosts[index] = updatedPost;
+                    patchState(store, {
+                      posts: updatedPosts,
+                      currentPost: updatedPost,
+                      isLoading: false,
+                    });
+                  } else {
+                    patchState(store, {
+                      currentPost: updatedPost,
+                      isLoading: false,
+                    });
+                  }
+                },
+                error: (error: HttpErrorResponse) => {
+                  let errorMessage = 'Failed to update post';
+                  if (error.error?.message) {
+                    errorMessage = error.error.message;
+                  }
+                  patchState(store, {
+                    isLoading: false,
+                    error: errorMessage,
+                  });
                 },
               })
             )
