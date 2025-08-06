@@ -49,10 +49,10 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 async function initializeDatabase() {
   try {
     await connectDatabase();
-    
+
     // Run migrations
-    await runMigrations();
-    
+    //await runMigrations();
+
     const isHealthy = await checkDatabaseHealth();
     if (!isHealthy) {
       throw new Error('Database health check failed');
@@ -73,7 +73,7 @@ app.use('/api/posts', postsRoutes);
 
 // API Routes
 app.get('/api', (req, res) => {
-  res.send({ 
+  res.send({
     message: 'Welcome to NG-Corner Blog API!',
     version: '2.0.0',
     features: ['Authentication', 'Blog Posts', 'User Management'],
@@ -104,7 +104,7 @@ async function startServer() {
   try {
     // Initialize database first
     await initializeDatabase();
-    
+
     const port = process.env.PORT || 3333;
     const server = app.listen(port, () => {
       console.log(`🚀 Server running at http://localhost:${port}`);
