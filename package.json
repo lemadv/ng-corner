@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "db:seed": "cd apps/blog-be && npx prisma db seed"
+    "db:seed": "npx prisma db seed"
   },
   "prisma": {
     "seed": "npx ts-node apps/blog-be/prisma/seed.ts"
