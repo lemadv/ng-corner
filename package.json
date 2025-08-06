@@ -2,7 +2,12 @@
   "name": "@ng-corner/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "db:seed": "cd apps/blog-be && npx prisma db seed"
+  },
+  "prisma": {
+    "seed": "npx ts-node apps/blog-be/prisma/seed.ts"
+  },
   "private": true,
   "dependencies": {
     "@angular-devkit/build-angular": "^20.1.4",
