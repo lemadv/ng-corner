@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class NavbarComponent {
   readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   readonly isUserMenuOpen = signal(false);
 
   toggleUserMenu(): void {
@@ -27,9 +28,13 @@ export class NavbarComponent {
       next: () => {
         console.log('Logged out successfully');
         this.closeUserMenu();
+        this.router.navigate(['/']);
       },
       error: (error) => {
         console.error('Logout failed:', error);
+        // Even if logout fails, navigate home
+        this.closeUserMenu();
+        this.router.navigate(['/']);
       }
     });
   }

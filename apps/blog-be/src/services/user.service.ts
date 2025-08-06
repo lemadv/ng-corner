@@ -415,6 +415,7 @@ export class UserService {
           profilePicture: true,
           emailVerified: true,
           provider: true,
+          role: true,
           createdAt: true,
           lastLogin: true
         }

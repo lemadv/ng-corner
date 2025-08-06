@@ -36,7 +36,7 @@ services:
       - .:/app
       - /app/node_modules
       - npm_cache:/root/.npm
-    command: sh -c "apk add --no-cache netcat-openbsd && npm ci && echo 'Waiting for postgres...' && while ! nc -z postgres 5432; do sleep 1; done && echo 'PostgreSQL is ready!' && npx prisma generate --schema=./apps/blog-be/prisma/schema.prisma && npx prisma migrate dev --schema=./apps/blog-be/prisma/schema.prisma --name init && DATABASE_URL='postgresql://blog_user:blog_password@postgres:5432/blog_db' npx nx serve blog-be --host 0.0.0.0"
+    command: sh -c "apk add --no-cache netcat-openbsd && npm ci && echo 'Waiting for postgres...' && while ! nc -z postgres 5432; do sleep 1; done && echo 'PostgreSQL is ready!' && npx prisma generate --schema=./apps/blog-be/prisma/schema.prisma && npx prisma migrate dev --schema=./apps/blog-be/prisma/schema.prisma --name init && DATABASE_URL='postgresql://blog_user:blog_password@postgres:5432/blog_db' npx nx serve blog-be --host 0.0.0.0 --watch"
 
   frontend:
     image: node:22-alpine
@@ -52,7 +52,7 @@ services:
       - .:/app
       - /app/node_modules
       - npm_cache:/root/.npm
-    command: sh -c "npm ci && npx nx serve blog --configuration=development --host 0.0.0.0"
+    command: sh -c "npm ci && npx nx serve blog --configuration=development --host 0.0.0.0 --poll=2000"
 
 volumes:
   postgres_data:

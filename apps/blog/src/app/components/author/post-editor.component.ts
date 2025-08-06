@@ -29,7 +29,7 @@ interface EditorTab {
           </button>
         </div>
       </div>
-      
+
       <div class="placeholder-content">
         <p>This component will be rebuilt with custom styling to replace Angular Material components.</p>
         <p>Current functionality:</p>
@@ -56,14 +56,14 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroy$ = new Subject<void>();
-  
+
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
   readonly currentPost = signal<PostWithAuthor | null>(null);
   readonly availableTags = signal<Tag[]>([]);
-  
+
   selectedTabIndex = 0;
-  
+
   readonly isEditMode = computed(() => !!this.currentPost());
   readonly editorMode = computed(() => {
     switch (this.selectedTabIndex) {
@@ -73,7 +73,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       default: return 'edit';
     }
   });
-  
+
   readonly editorForm = this.fb.group({
     title: ['', [Validators.required]],
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
@@ -83,14 +83,14 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     metaDescription: [''],
     tags: [[] as string[]]
   });
-  
+
   ngOnInit(): void {
     // Check if we're editing an existing post
     const postId = this.route.snapshot.params['id'];
     if (postId) {
       this.loadPost(postId);
     }
-    
+
     // Auto-save functionality
     this.editorForm.valueChanges
       .pipe(
@@ -101,20 +101,21 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         // Auto-save logic would go here
       });
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-  
+
   private loadPost(postId: string): void {
     this.isLoading.set(true);
     // TODO: Implement getPost method in PostService
     // For now, just show placeholder
     console.log('Loading post:', postId);
+    console.log('Loading post:', postId);
     this.isLoading.set(false);
   }
-  
+
   goBack(): void {
     this.router.navigate(['/author/dashboard']);
   }
