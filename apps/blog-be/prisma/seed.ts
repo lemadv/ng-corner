@@ -18,6 +18,7 @@ interface DefaultTag {
   color: string;
 }
 
+
 const DEFAULT_ADMIN: DefaultUser = {
   email: 'leandro@ng-corner.com',
   password: 'Angular123@',
@@ -28,40 +29,64 @@ const DEFAULT_ADMIN: DefaultUser = {
 
 const DEFAULT_TAGS: DefaultTag[] = [
   { 
-    name: 'Angular', 
-    slug: 'angular', 
-    description: 'Angular framework and ecosystem', 
+    name: 'Enterprise Architecture', 
+    slug: 'enterprise-architecture', 
+    description: 'Scalable, maintainable enterprise application patterns', 
     color: '#dd0031' 
   },
   { 
-    name: 'TypeScript', 
-    slug: 'typescript', 
-    description: 'TypeScript language and tooling', 
+    name: 'Performance Optimization', 
+    slug: 'performance-optimization', 
+    description: 'Production performance tuning and optimization techniques', 
     color: '#3178c6' 
   },
   { 
-    name: 'JavaScript', 
-    slug: 'javascript', 
-    description: 'JavaScript language and ecosystem', 
+    name: 'Security Patterns', 
+    slug: 'security-patterns', 
+    description: 'Security best practices and implementation patterns', 
     color: '#f7df1e' 
   },
   { 
-    name: 'Web Development', 
-    slug: 'web-development', 
-    description: 'General web development topics', 
-    color: '#61dafb' 
+    name: 'Advanced NgRx', 
+    slug: 'advanced-ngrx', 
+    description: 'Advanced state management patterns with NgRx', 
+    color: '#8e24aa' 
   },
   { 
-    name: 'Tutorial', 
-    slug: 'tutorial', 
-    description: 'Step-by-step tutorials and guides', 
+    name: 'Micro-frontends', 
+    slug: 'micro-frontends', 
+    description: 'Micro-frontend architecture and implementation strategies', 
     color: '#4caf50' 
   },
   { 
-    name: 'Best Practices', 
-    slug: 'best-practices', 
-    description: 'Development best practices and patterns', 
+    name: 'CI/CD & Deployment', 
+    slug: 'cicd-deployment', 
+    description: 'Continuous integration, deployment, and DevOps practices', 
     color: '#ff9800' 
+  },
+  { 
+    name: 'Testing Strategies', 
+    slug: 'testing-strategies', 
+    description: 'Production-ready testing approaches and automation', 
+    color: '#2196f3' 
+  },
+  { 
+    name: 'Monitoring & Observability', 
+    slug: 'monitoring-observability', 
+    description: 'Application monitoring, logging, and observability patterns', 
+    color: '#9c27b0' 
+  },
+  { 
+    name: 'Angular Tips & Tricks', 
+    slug: 'angular-tips-tricks', 
+    description: 'Quick tips, tricks, and best practices for Angular development', 
+    color: '#00bcd4' 
+  },
+  { 
+    name: 'Code Patterns', 
+    slug: 'code-patterns', 
+    description: 'Proven code patterns and architectural solutions', 
+    color: '#795548' 
   }
 ];
 
