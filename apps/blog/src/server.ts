@@ -30,11 +30,14 @@ const angularApp = new AngularNodeAppEngine();
 app.use(
   '/api',
   createProxyMiddleware({
-    target: process.env['API_URL'],
+    target: process.env['API_URL'],          //  https://ng-corner-1.onrender.com
     changeOrigin: true,
-     pathRewrite: {
-      '^/api': '' // 🧽 remove /api from beginning
-    },
+    /*
+     * Express removed the leading /api, so we put it back.
+     *  ""        → "/api"
+     *  "/posts"  → "/api/posts"
+     */
+    pathRewrite: (path) => (path ? `/api${path}` : '/api')
   })
 );
 
