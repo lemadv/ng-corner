@@ -183,12 +183,13 @@ export const AuthStore = signalStore(
               tapResponse({
                 next: (response) => {
                   if (typeof window !== 'undefined') {
-                    localStorage.setItem('authToken', response.accessToken);
+                    localStorage.setItem(tokenKey, response.accessToken);
                   }
                   patchState(store, {
                     currentUser: response.user,
                     isLoading: false,
                     error: null,
+                    isInitialized: true,
                   });
                 },
                 error: (error: HttpErrorResponse) => {

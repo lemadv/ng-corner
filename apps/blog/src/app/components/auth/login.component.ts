@@ -1,4 +1,4 @@
-import { Component, signal, inject, effect, Injector } from '@angular/core';
+import { Component, signal, inject, effect, Injector, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -144,7 +144,8 @@ import { AuthStore } from '../../store/auth.store';
   styleUrl: './login.component.scss',
   imports: [CommonModule, ReactiveFormsModule],
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
+  private navigationEffect?: ReturnType<typeof effect>;
   readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -175,7 +176,7 @@ export class LoginComponent {
       this.authStore.login(credentials);
 
       // Set up effect to watch for successful authentication
-      const navigationEffect = effect(
+      this.navigationEffect = effect(
         () => {
           const isLoading = this.authStore.isLoading();
           const isAuthenticated = this.authStore.isAuthenticated();
@@ -183,7 +184,7 @@ export class LoginComponent {
           if (!isLoading && isAuthenticated) {
             // Login successful, navigate
             const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-
+            
             if (returnUrl) {
               this.router.navigateByUrl(returnUrl);
             } else if (this.authStore.isAuthor()) {
@@ -192,18 +193,24 @@ export class LoginComponent {
               this.router.navigate(['/']);
             }
 
-            // Clean up effect after navigation
-            navigationEffect.destroy();
+            // Clean up effect after successful navigation
+            if (this.navigationEffect) {
+              this.navigationEffect.destroy();
+              this.navigationEffect = undefined;
+            }
           }
         },
         { injector: this.injector }
       );
-
-      // Store reference to effect for potential cleanup
-      (this as any).navigationEffect = navigationEffect;
     } else {
       // Mark all fields as touched to show validation errors
       this.loginForm.markAllAsTouched();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.navigationEffect) {
+      this.navigationEffect.destroy();
     }
   }
 }

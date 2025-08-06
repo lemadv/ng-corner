@@ -15,6 +15,7 @@ export class NavbarComponent {
   private readonly router = inject(Router);
   readonly isUserMenuOpen = signal(false);
 
+
   toggleUserMenu(): void {
     this.isUserMenuOpen.set(!this.isUserMenuOpen());
   }

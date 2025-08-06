@@ -65,6 +65,7 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: Requ
         firstName: user.firstName,
         lastName: user.lastName,
         emailVerified: user.emailVerified,
+        role: user.role,
         createdAt: user.createdAt
       },
       nextStep: 'Please check your email to verify your account'
@@ -156,7 +157,8 @@ router.post('/login', authLimiter, validate(loginSchema), async (req: Request, r
         firstName: user.firstName,
         lastName: user.lastName,
         emailVerified: user.emailVerified,
-        provider: user.provider
+        provider: user.provider,
+        role: user.role
       },
       accessToken: tokenPair.accessToken,
       expiresIn: tokenPair.expiresIn
