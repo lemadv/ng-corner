@@ -239,7 +239,7 @@ export const detectSuspiciousActivity = (
  */
 export const getCorsOptions = () => {
   const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? ['https://ng-corner.dev', 'https://www.ng-corner.dev'] // Production domains
+    ? ['https://ng-corner.dev', 'https://www.ng-corner.dev', 'https://www.ng-corner.com/','http://staging.ng-corner.com/'] // Production domains
     : ['http://localhost:4200', 'http://127.0.0.1:4200']; // Development
 
   return {
