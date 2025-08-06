@@ -3,6 +3,10 @@
 // Import OKLCH Theme System
 @use './styles/theme.scss';
 
+// Import Prism.js CSS for syntax highlighting
+@import 'prismjs/themes/prism-tomorrow.css';
+@import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
+
 // Global styles using theme variables
 * {
   box-sizing: border-box;
@@ -20,4 +24,78 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   height: 100%;
+  
+  // Optimize rendering performance
+  font-kerning: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shifts during hydration */
+.blog-post-card,
+.skeleton-card {
+  will-change: transform, box-shadow;
+}
+
+/* Optimize scrolling performance for main content areas */
+.blog-post-list,
+.posts-grid {
+  // Enable hardware acceleration for smooth scrolling
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Prevent layout shifts during image loading */
+img {
+  height: auto;
+  max-width: 100%;
+}
+
+/* Code syntax highlighting styles */
+pre[class*="language-"] {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* Ensure code blocks are properly styled */
+  code[class*="language-"] {
+    padding: 0;
+    margin: 0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  }
+}
+
+/* Inline code styles */
+:not(pre) > code[class*="language-"] {
+  background: var(--bg-secondary, #f5f5f5);
+  color: var(--text-primary, #333);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+/* Markdown prose styles for code blocks */
+.prose {
+  pre {
+    background: #2d3748 !important;
+    border: 1px solid #4a5568;
+  }
+  
+  code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  }
+  
+  p code {
+    background: var(--bg-secondary, #f7f7f7);
+    color: var(--text-accent, #e74c3c);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
 }

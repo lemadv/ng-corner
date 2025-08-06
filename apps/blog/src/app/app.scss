@@ -2,10 +2,19 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  
+  // Prevent layout shifts during hydration
+  contain: layout style;
 }
 
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  
+  // Ensure minimum height to prevent footer jumping
+  min-height: calc(100vh - 120px); // Approximate height minus navbar/footer
+  
+  // Prevent layout shifts
+  contain: layout style;
 }

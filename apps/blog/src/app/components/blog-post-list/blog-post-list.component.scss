@@ -14,6 +14,12 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--space-lg);
+  
+  // Provide minimum height to prevent footer jumping
+  min-height: calc(100vh - 400px); // Account for hero, navbar, footer
+  
+  // Prevent layout shifts during content loading
+  contain: layout style;
 }
 
 .loading-initial {
@@ -165,6 +171,17 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: var(--space-xl);
   margin-bottom: var(--space-2xl);
+  
+  // Reserve space for content to prevent layout shifts
+  min-height: 600px;
+  
+  // Smooth transitions when content loads
+  transition: min-height 0.3s ease;
+  
+  // When content is loaded, remove min-height
+  &.has-content {
+    min-height: auto;
+  }
 }
 
 // Removed load-more-container, load-more-trigger, and loading-more styles

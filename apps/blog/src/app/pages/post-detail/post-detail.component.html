@@ -1,0 +1,109 @@
+<div class="post-detail">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading post...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-container">
+      <div class="error-icon">😞</div>
+      <h2>Post Not Found</h2>
+      <p>{{ error() }}</p>
+      <button class="back-button" (click)="goBack()">
+        ← Back to Home
+      </button>
+    </div>
+  }
+
+  @if (post() && !loading()) {
+    <article class="post-article">
+      <!-- Navigation -->
+      <nav class="post-nav" aria-label="Post navigation">
+        <button class="back-button" (click)="goBack()" aria-label="Go back to home page">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+          Back
+        </button>
+        
+        <button class="share-button" (click)="sharePost()" aria-label="Share this post">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          Share
+        </button>
+      </nav>
+
+      <!-- Post Header -->
+      <header class="post-header">
+        <h1 class="post-title">{{ post()!.title }}</h1>
+        
+        <div class="post-meta">
+          <div class="author-info">
+            <span class="author-name">By {{ post()!.author }}</span>
+          </div>
+          
+          <div class="post-stats">
+            <time class="post-date" [dateTime]="post()!.createdDate.toString()">
+              {{ post()!.createdDate | date : 'MMM d, yyyy' }}
+            </time>
+            
+            @if (getReadingTime() > 0) {
+              <span class="reading-time">
+                {{ getReadingTime() }} min read
+              </span>
+            }
+          </div>
+          
+          @if (post()!.modifiedDate !== post()!.createdDate) {
+            <div class="update-info">
+              <span class="updated-label">Updated:</span>
+              <time [dateTime]="post()!.modifiedDate.toString()">
+                {{ post()!.modifiedDate | date : 'MMM d, yyyy' }}
+              </time>
+            </div>
+          }
+        </div>
+
+        @if (post()!.tags && post()!.tags!.length > 0) {
+          <div class="post-tags" aria-label="Post tags">
+            @for (tag of post()!.tags; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+        }
+      </header>
+
+      <!-- Post Content -->
+      <main class="post-content">
+        <div class="prose">
+          <markdown 
+            [data]="post()!.content"
+            [lineHighlight]="false"
+            [lineNumbers]="false"
+            [commandLine]="false">
+          </markdown>
+        </div>
+      </main>
+
+      <!-- Post Footer -->
+      <footer class="post-footer">
+        <div class="post-actions">
+          <button class="action-button" (click)="goBack()">
+            ← More Articles
+          </button>
+          
+          <button class="action-button share-button" (click)="sharePost()">
+            Share Article
+          </button>
+        </div>
+      </footer>
+    </article>
+  }
+</div>

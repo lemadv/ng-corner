@@ -15,4 +15,5 @@ export interface BlogPostSearchParams {
   page?: number;
   limit?: number;
   search?: string;
+  tag?: string;
 }

@@ -54,7 +54,7 @@
       </div>
     }
 
-    <div class="posts-grid" role="list" aria-label="Blog post previews">
+    <div class="posts-grid" [class.has-content]="vm.hasResults()" role="list" aria-label="Blog post previews">
       @for (post of vm.posts(); track trackByPostId($index, post)) {
         <app-blog-post-card [post]="post" role="listitem" />
       }

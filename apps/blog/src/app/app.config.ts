@@ -12,6 +12,18 @@ import { appRoutes } from './app.routes';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthStore } from './store/auth.store';
 
+// Import Prism.js for syntax highlighting
+import 'prismjs';
+import 'prismjs/plugins/line-numbers/prism-line-numbers';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-scss';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-markdown';
+import 'prismjs/components/prism-bash';
+
 /**
  * Factory function for APP_INITIALIZER to initialize authentication
  */

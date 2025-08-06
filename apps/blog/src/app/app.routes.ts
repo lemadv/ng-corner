@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { blogPostsResolver } from './resolvers/blog-posts.resolver';
+import { postResolver } from './resolvers/post.resolver';
 import { authGuard } from './guards/auth.guard';
 
 export const appRoutes: Route[] = [
@@ -13,6 +14,13 @@ export const appRoutes: Route[] = [
   {
     path: 'contact',
     loadComponent: () => import('./pages/contact/contact.component').then(m => m.ContactComponent)
+  },
+  {
+    path: 'post/:slug',
+    loadComponent: () => import('./pages/post-detail/post-detail.component').then(m => m.PostDetailComponent),
+    resolve: {
+      post: postResolver
+    }
   },
   {
     path: 'login',

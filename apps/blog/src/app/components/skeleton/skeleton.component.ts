@@ -30,6 +30,13 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
       padding: var(--space-xl);
       box-shadow: var(--shadow-sm);
       animation: pulse 1.5s ease-in-out infinite alternate;
+      
+      // Ensure consistent height to prevent layout shifts
+      min-height: 350px;
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .skeleton-header {

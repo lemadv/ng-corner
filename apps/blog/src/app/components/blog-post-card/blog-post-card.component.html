@@ -29,7 +29,7 @@
   }
 
   <div class="post-actions">
-    <button class="read-more-btn" type="button">
+    <a [routerLink]="['/post', post().slug]" class="read-more-btn" role="button">
       Read More
       <svg
         width="16"
@@ -42,6 +42,6 @@
         <path d="M5 12h14"></path>
         <path d="m12 5 7 7-7 7"></path>
       </svg>
-    </button>
+    </a>
   </div>
 </article>

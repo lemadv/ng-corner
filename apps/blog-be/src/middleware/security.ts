@@ -110,7 +110,7 @@ export const validateRequestBody = (
       const checkObject = (obj: any, path = ''): boolean => {
         for (const [key, value] of Object.entries(obj)) {
           const currentPath = path ? `${path}.${key}` : key;
-          
+
           if (typeof value === 'string' && checkString(value)) {
             console.warn(`Suspicious body parameter detected: ${currentPath} = ${value}`);
             return true;
@@ -152,14 +152,14 @@ export const securityHeaders = (
 ): void => {
   // Remove sensitive headers
   res.removeHeader('X-Powered-By');
-  
+
   // Add security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  
+
   // Content Security Policy
   res.setHeader(
     'Content-Security-Policy',
@@ -215,7 +215,7 @@ export const detectSuspiciousActivity = (
   ];
 
   const isSuspiciousBot = botPatterns.some(pattern => pattern.test(userAgent));
-  
+
   if (isSuspiciousBot && !req.path.startsWith('/api/public')) {
     logSecurityEvent('suspicious_bot_access', {
       userAgent,
@@ -246,11 +246,11 @@ export const getCorsOptions = () => {
     origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (mobile apps, etc.)
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      
+
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     },

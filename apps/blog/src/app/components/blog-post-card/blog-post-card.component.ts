@@ -1,10 +1,11 @@
 import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { BlogPost } from '../../models/blog-post.interface';
 
 @Component({
   selector: 'app-blog-post-card',
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './blog-post-card.component.html',
   styleUrl: './blog-post-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,6 +1,10 @@
 .home-page {
   display: flex;
   flex-direction: column;
+  min-height: 100%;
+  
+  // Prevent layout shifts during hydration
+  contain: layout style;
 }
 
 .hero-section {

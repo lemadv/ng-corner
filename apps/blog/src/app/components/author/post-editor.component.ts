@@ -1,4 +1,13 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy, effect } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  inject,
+  OnInit,
+  OnDestroy,
+  effect,
+  Injector,
+} from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -16,34 +25,41 @@ import { PostStore } from '../../store/post.store';
         <div class="header-left">
           <button class="back-button" (click)="goBack()">
             <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+              <path
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+              />
             </svg>
             Back to Dashboard
           </button>
           <h1>{{ isEditMode() ? 'Edit Post' : 'Create New Post' }}</h1>
         </div>
-        
+
         <div class="header-actions">
-          <button class="save-button" [disabled]="editorForm.invalid || isLoading()" (click)="saveDraft()">
+          <button
+            class="save-button"
+            [disabled]="editorForm.invalid || isLoading()"
+            (click)="saveDraft()"
+          >
             @if (isLoading()) {
-              <div class="spinner"></div>
-              Saving...
-            } @else {
-              Save Draft
-            }
+            <div class="spinner"></div>
+            Saving... } @else { Save Draft }
           </button>
-          
-          <button class="publish-button" [disabled]="editorForm.invalid || isLoading()" (click)="publishPost()">
+
+          <button
+            class="publish-button"
+            [disabled]="editorForm.invalid || isLoading()"
+            (click)="publishPost()"
+          >
             {{ isEditMode() ? 'Update & Publish' : 'Publish' }}
           </button>
         </div>
       </div>
 
       @if (error()) {
-        <div class="error-banner">
-          {{ error() }}
-          <button class="dismiss-button" (click)="clearError()">×</button>
-        </div>
+      <div class="error-banner">
+        {{ error() }}
+        <button class="dismiss-button" (click)="clearError()">×</button>
+      </div>
       }
 
       <form [formGroup]="editorForm" class="editor-form">
@@ -51,42 +67,42 @@ import { PostStore } from '../../store/post.store';
         <div class="post-details">
           <div class="form-field">
             <label for="title">Title *</label>
-            <input 
-              id="title" 
-              type="text" 
-              formControlName="title" 
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
               placeholder="Enter post title..."
               (input)="onTitleChange($event)"
-            >
-            @if (editorForm.get('title')?.invalid && editorForm.get('title')?.touched) {
-              <div class="field-error">Title is required</div>
+            />
+            @if (editorForm.get('title')?.invalid &&
+            editorForm.get('title')?.touched) {
+            <div class="field-error">Title is required</div>
             }
           </div>
 
           <div class="form-field">
             <label for="slug">URL Slug *</label>
-            <input 
-              id="slug" 
-              type="text" 
-              formControlName="slug" 
+            <input
+              id="slug"
+              type="text"
+              formControlName="slug"
               placeholder="url-slug"
-            >
-            @if (editorForm.get('slug')?.invalid && editorForm.get('slug')?.touched) {
-              <div class="field-error">
-                @if (editorForm.get('slug')?.errors?.['required']) {
-                  Slug is required
-                } @else if (editorForm.get('slug')?.errors?.['pattern']) {
-                  Slug can only contain lowercase letters, numbers, and hyphens
-                }
-              </div>
+            />
+            @if (editorForm.get('slug')?.invalid &&
+            editorForm.get('slug')?.touched) {
+            <div class="field-error">
+              @if (editorForm.get('slug')?.errors?.['required']) { Slug is
+              required } @else if (editorForm.get('slug')?.errors?.['pattern'])
+              { Slug can only contain lowercase letters, numbers, and hyphens }
+            </div>
             }
           </div>
 
           <div class="form-field">
             <label for="excerpt">Excerpt</label>
-            <textarea 
-              id="excerpt" 
-              formControlName="excerpt" 
+            <textarea
+              id="excerpt"
+              formControlName="excerpt"
               placeholder="Brief description for previews..."
               rows="3"
             ></textarea>
@@ -96,27 +112,27 @@ import { PostStore } from '../../store/post.store';
         <!-- Editor Tabs -->
         <div class="editor-tabs">
           <div class="tab-nav">
-            <button 
+            <button
               type="button"
-              class="tab-button" 
+              class="tab-button"
               [class.active]="selectedTabIndex() === 0"
               (click)="selectedTabIndex.set(0)"
             >
               Write
             </button>
-            
-            <button 
+
+            <button
               type="button"
-              class="tab-button" 
+              class="tab-button"
               [class.active]="selectedTabIndex() === 1"
               (click)="selectedTabIndex.set(1)"
             >
               Preview
             </button>
-            
-            <button 
+
+            <button
               type="button"
-              class="tab-button" 
+              class="tab-button"
               [class.active]="selectedTabIndex() === 2"
               (click)="selectedTabIndex.set(2)"
             >
@@ -126,59 +142,86 @@ import { PostStore } from '../../store/post.store';
 
           <!-- Content Editor -->
           <div class="editor-content" [class]="'mode-' + currentEditorMode()">
-            
             <!-- Write Mode -->
-            @if (currentEditorMode() === 'edit' || currentEditorMode() === 'split') {
-              <div class="markdown-editor">
-                <div class="editor-toolbar">
-                  <button type="button" class="toolbar-button" (click)="insertMarkdown('**', '**')" title="Bold">
-                    B
-                  </button>
-                  
-                  <button type="button" class="toolbar-button" (click)="insertMarkdown('*', '*')" title="Italic">
-                    I
-                  </button>
-                  
-                  <button type="button" class="toolbar-button" (click)="insertMarkdown('## ', '')" title="Header">
-                    H
-                  </button>
-                  
-                  <button type="button" class="toolbar-button" (click)="insertMarkdown('[', '](url)')" title="Link">
-                    Link
-                  </button>
-                  
-                  <button type="button" class="toolbar-button" (click)="insertCodeBlock()" title="Code Block">
-                    Code
-                  </button>
-                </div>
-                
-                <textarea 
-                  formControlName="content" 
-                  placeholder="Write your post content in Markdown..."
-                  class="content-textarea"
-                  rows="20"
-                ></textarea>
-                
-                @if (editorForm.get('content')?.invalid && editorForm.get('content')?.touched) {
-                  <div class="field-error">Content is required</div>
-                }
+            @if (currentEditorMode() === 'edit' || currentEditorMode() ===
+            'split') {
+            <div class="markdown-editor">
+              <div class="editor-toolbar">
+                <button
+                  type="button"
+                  class="toolbar-button"
+                  (click)="insertMarkdown('**', '**')"
+                  title="Bold"
+                >
+                  B
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-button"
+                  (click)="insertMarkdown('*', '*')"
+                  title="Italic"
+                >
+                  I
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-button"
+                  (click)="insertMarkdown('## ', '')"
+                  title="Header"
+                >
+                  H
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-button"
+                  (click)="insertMarkdown('[', '](url)')"
+                  title="Link"
+                >
+                  Link
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-button"
+                  (click)="insertCodeBlock()"
+                  title="Code Block"
+                >
+                  Code
+                </button>
               </div>
+
+              <textarea
+                formControlName="content"
+                placeholder="Write your post content in Markdown..."
+                class="content-textarea"
+                rows="20"
+              ></textarea>
+
+              @if (editorForm.get('content')?.invalid &&
+              editorForm.get('content')?.touched) {
+              <div class="field-error">Content is required</div>
+              }
+            </div>
             }
 
             <!-- Preview Mode -->
-            @if (currentEditorMode() === 'preview' || currentEditorMode() === 'split') {
-              <div class="markdown-preview">
-                <div class="preview-header">
-                  <h2>Preview</h2>
-                </div>
-                <div class="preview-content">
-                  @if (editorForm.get('content')?.value) {
-                    <markdown [data]="editorForm.get('content')?.value"></markdown>
-                  } @else {
-                    <p class="empty-preview">Start writing to see the preview...</p>
-                  }
-                </div>
+            @if (currentEditorMode() === 'preview' || currentEditorMode() ===
+            'split') {
+            <div class="markdown-preview">
+              <div class="preview-header">
+                <h2>Preview</h2>
               </div>
+              <div class="preview-content">
+                @if (editorForm.get('content')?.value) {
+                <markdown [data]="editorForm.get('content')?.value"></markdown>
+                } @else {
+                <p class="empty-preview">Start writing to see the preview...</p>
+                }
+              </div>
+            </div>
             }
           </div>
         </div>
@@ -186,40 +229,42 @@ import { PostStore } from '../../store/post.store';
         <!-- Meta Information -->
         <div class="meta-section">
           <h3>SEO & Meta Information</h3>
-          
+
           <div class="form-field">
             <label for="metaTitle">Meta Title</label>
-            <input 
-              id="metaTitle" 
-              type="text" 
-              formControlName="metaTitle" 
+            <input
+              id="metaTitle"
+              type="text"
+              formControlName="metaTitle"
               placeholder="SEO title (leave empty to use post title)"
               maxlength="60"
-            >
-            <div class="field-hint">{{ (editorForm.get('metaTitle')?.value || '').length }}/60 characters</div>
+            />
+            <div class="field-hint">
+              {{ (editorForm.get('metaTitle')?.value || '').length }}/60
+              characters
+            </div>
           </div>
-          
+
           <div class="form-field">
             <label for="metaDescription">Meta Description</label>
-            <textarea 
-              id="metaDescription" 
-              formControlName="metaDescription" 
+            <textarea
+              id="metaDescription"
+              formControlName="metaDescription"
               placeholder="Brief description for search engines..."
               maxlength="160"
               rows="3"
             ></textarea>
-            <div class="field-hint">{{ (editorForm.get('metaDescription')?.value || '').length }}/160 characters</div>
+            <div class="field-hint">
+              {{ (editorForm.get('metaDescription')?.value || '').length }}/160
+              characters
+            </div>
           </div>
         </div>
       </form>
     </div>
   `,
   styleUrl: './post-editor.component.scss',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MarkdownModule
-  ]
+  imports: [CommonModule, ReactiveFormsModule, MarkdownModule],
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
   readonly authStore = inject(AuthStore);
@@ -227,6 +272,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  private readonly injector = inject(Injector);
   private readonly destroy$ = new Subject<void>();
 
   // Use store signals
@@ -237,7 +283,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   readonly selectedTabIndex = signal(0);
   readonly editorModes = ['edit', 'preview', 'split'] as const;
-  readonly currentEditorMode = computed(() => this.editorModes[this.selectedTabIndex()]);
+  readonly currentEditorMode = computed(
+    () => this.editorModes[this.selectedTabIndex()]
+  );
 
   readonly isEditMode = computed(() => !!this.currentPost());
 
@@ -248,7 +296,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     excerpt: [''],
     metaTitle: [''],
     metaDescription: [''],
-    tags: [[] as string[]]
+    tags: [[] as string[]],
   });
 
   ngOnInit(): void {
@@ -260,10 +308,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
     // Auto-save functionality
     this.editorForm.valueChanges
-      .pipe(
-        debounceTime(2000),
-        takeUntil(this.destroy$)
-      )
+      .pipe(debounceTime(2000), takeUntil(this.destroy$))
       .subscribe(() => {
         if (this.editorForm.valid && this.isEditMode()) {
           this.saveDraft();
@@ -278,24 +323,27 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   private loadPost(postId: string): void {
     this.postStore.loadPost({ postId });
-    
+
     // Update form when post loads using effect
-    const updateFormEffect = effect(() => {
-      const post = this.currentPost();
-      if (post && post.id === postId) {
-        this.editorForm.patchValue({
-          title: post.title,
-          slug: post.slug,
-          content: post.content,
-          excerpt: post.excerpt,
-          metaTitle: post.metaTitle,
-          metaDescription: post.metaDescription,
-          // TODO: Handle tags when tag system is implemented
-        });
-        // Destroy effect after form is populated
-        updateFormEffect.destroy();
-      }
-    });
+    const updateFormEffect = effect(
+      () => {
+        const post = this.currentPost();
+        if (post && post.id === postId) {
+          this.editorForm.patchValue({
+            title: post.title,
+            slug: post.slug,
+            content: post.content,
+            excerpt: post.excerpt,
+            metaTitle: post.metaTitle,
+            metaDescription: post.metaDescription,
+            // TODO: Handle tags when tag system is implemented
+          });
+          // Destroy effect after form is populated
+          updateFormEffect.destroy();
+        }
+      },
+      { injector: this.injector }
+    );
   }
 
   onTitleChange(event: Event): void {
@@ -318,23 +366,31 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   insertMarkdown(before: string, after: string): void {
-    const textarea = document.querySelector('.content-textarea') as HTMLTextAreaElement;
+    const textarea = document.querySelector(
+      '.content-textarea'
+    ) as HTMLTextAreaElement;
     if (!textarea) return;
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = textarea.value.substring(start, end);
-    
+
     const newText = before + selectedText + after;
     const currentContent = this.editorForm.get('content')?.value || '';
-    const updatedContent = currentContent.substring(0, start) + newText + currentContent.substring(end);
-    
+    const updatedContent =
+      currentContent.substring(0, start) +
+      newText +
+      currentContent.substring(end);
+
     this.editorForm.patchValue({ content: updatedContent });
-    
+
     // Restore cursor position
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+      textarea.setSelectionRange(
+        start + before.length,
+        start + before.length + selectedText.length
+      );
     });
   }
 
@@ -345,7 +401,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   saveDraft(): void {
     if (this.editorForm.valid) {
       const formValue = this.editorForm.value;
-      
+
       if (this.isEditMode()) {
         // Update existing post
         const postId = this.currentPost()?.id;
@@ -379,7 +435,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   publishPost(): void {
     if (this.editorForm.valid) {
       const formValue = this.editorForm.value;
-      
+
       if (this.isEditMode()) {
         // Update and publish existing post
         const postId = this.currentPost()?.id;
