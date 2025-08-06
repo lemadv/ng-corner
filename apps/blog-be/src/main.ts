@@ -65,14 +65,14 @@ async function initializeDatabase() {
 }
 
 // Authentication routes
-app.use('/api/auth', authRoutes);
-app.use('/api/password', passwordRoutes);
+app.use('/auth', authRoutes);
+app.use('/password', passwordRoutes);
 
 // Blog posts routes
-app.use('/api/posts', postsRoutes);
+app.use('/posts', postsRoutes);
 
 // API Routes
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.send({
     message: 'Welcome to NG-Corner Blog API!',
     version: '2.0.0',

@@ -33,11 +33,11 @@ app.use(
     target: process.env['API_URL'],          //  https://ng-corner-1.onrender.com
     changeOrigin: true,
     /*
-     * Express removed the leading /api, so we put it back.
-     *  ""        → "/api"
-     *  "/posts"  → "/api/posts"
+     * Express removes the leading /api, and we want to keep it that way
+     * since the backend now mounts routes at root level:
+     *  "/api"        → "/"         (welcome message)
+     *  "/api/posts"  → "/posts"    (posts API)
      */
-    pathRewrite: (path) => (path ? `/api${path}` : '/api')
   })
 );
 
