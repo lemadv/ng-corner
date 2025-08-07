@@ -24,7 +24,7 @@ import {
 import { optionalAuth } from './middleware/auth';
 
 const app = express();
-
+app.set('trust proxy', true);
 // Security middleware
 app.use(helmet());
 app.use(cors(getCorsOptions()));
@@ -38,7 +38,6 @@ app.use(cookieParser());
 
 // Request validation
 app.use(validateRequestBody);
-
 // Rate limiting
 app.use(apiLimiter);
 
