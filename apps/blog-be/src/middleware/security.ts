@@ -72,9 +72,8 @@ export const validateRequestBody = (
   next: NextFunction
 ): void => {
   try {
-    // Check for excessively large payloads
     const contentLength = req.get('content-length');
-    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB limit
+    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) {
       res.status(413).json({
         error: 'Payload too large',
         message: 'Request payload exceeds maximum size limit'
@@ -82,57 +81,7 @@ export const validateRequestBody = (
       return;
     }
 
-    // Basic SQL injection detection in query parameters
-    const suspiciousPatterns = [
-      /(\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bunion\b|\bdrop\b)/i,
-      /(\bscript\b|\balert\b|\bonerror\b|\bonload\b)/i,
-      /(<script|<iframe|<object|<embed)/i
-    ];
-
-    const checkString = (str: string): boolean => {
-      return suspiciousPatterns.some(pattern => pattern.test(str));
-    };
-
-    // Check query parameters
-    for (const [key, value] of Object.entries(req.query)) {
-      if (typeof value === 'string' && checkString(value)) {
-        console.warn(`Suspicious query parameter detected: ${key} = ${value}`);
-        res.status(400).json({
-          error: 'Invalid request',
-          message: 'Invalid characters detected in request'
-        });
-        return;
-      }
-    }
-
-    // Check body parameters (if it's an object)
-    if (req.body && typeof req.body === 'object') {
-      const checkObject = (obj: any, path = ''): boolean => {
-        for (const [key, value] of Object.entries(obj)) {
-          const currentPath = path ? `${path}.${key}` : key;
-
-          if (typeof value === 'string' && checkString(value)) {
-            console.warn(`Suspicious body parameter detected: ${currentPath} = ${value}`);
-            return true;
-          } else if (typeof value === 'object' && value !== null) {
-            if (checkObject(value, currentPath)) {
-              return true;
-            }
-          }
-        }
-        return false;
-      };
-
-      if (checkObject(req.body)) {
-        res.status(400).json({
-          error: 'Invalid request',
-          message: 'Invalid characters detected in request body'
-        });
-        return;
-      }
-    }
-
-    next();
+    next(); // Allow everything else
   } catch (error) {
     console.error('Request validation error:', error);
     res.status(400).json({
@@ -141,6 +90,7 @@ export const validateRequestBody = (
     });
   }
 };
+
 
 /**
  * Security headers middleware
