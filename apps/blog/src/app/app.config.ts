@@ -23,6 +23,7 @@ import 'prismjs/components/prism-scss';
 import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-markdown';
 import 'prismjs/components/prism-bash';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 /**
  * Factory function for APP_INITIALIZER to initialize authentication
@@ -36,6 +37,7 @@ function initializeAuthFactory(): () => Promise<void> {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideClientHydration(withEventReplay()),
     provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
